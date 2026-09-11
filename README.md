@@ -1,227 +1,136 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TODO List — SteelfangsDen</title>
-    <link type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
-    <link type="text/css" rel="stylesheet" href="css/w95.css">
-    <style>
-        body {
-            background: #008081;
-            font-family: 'Windows 95', sans-serif;
-            padding: 20px;
-        }
-        .todo-card {
-            background: #c0c0c0;
-            border: none;
-            margin-bottom: 24px;
-        }
-        .todo-card .card-header {
-            background: #000181;
-            color: #fff;
-            font-size: 0.9rem;
-            padding: 5px 10px;
-        }
-        .todo-card .card-body {
-            padding: 12px;
-            font-size: 0.82rem;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.78rem;
-        }
-        th {
-            background: #000181;
-            color: #fff;
-            padding: 4px 8px;
-            text-align: left;
-        }
-        tr:nth-child(even) { background: #d4d0c8; }
-        tr:nth-child(odd)  { background: #fff; }
-        td { padding: 4px 8px; vertical-align: top; }
-        td a { color: #000181; }
-        .status-todo    { color: #c00; font-weight: bold; }
-        .status-done    { color: #060; font-weight: bold; }
-        .status-confirm { color: #660; font-weight: bold; }
-        .section-label {
-            background: #444;
-            color: #fff;
-            padding: 2px 8px;
-            font-size: 0.7rem;
-            display: inline-block;
-            margin-bottom: 6px;
-        }
-        h1 { color: #fff; font-size: 1.1rem; margin-bottom: 16px; }
-        p.note { font-size: 0.75rem; color: #c0c0c0; margin-top: 8px; }
-    </style>
-</head>
-<body>
+# SteelfangsDen
 
-<h1>🗒️ SteelfangsDen — Developer TODO List</h1>
+> 🚧 **WIP — To Come — everything**
 
-<div class="todo-card card">
-    <div class="card-header">🚧 WIP</div>
-    <div class="card-body">
-        <h2 style="font-size:1rem;margin-bottom:4px;">To Come</h2>
-        <p style="margin-bottom:12px;">- everything</p>
-        <img src="https://github.com/user-attachments/assets/dab85576-64cd-4be4-a898-82e80fbb3222"
-             alt="preview"
-             width="1920"
-             height="1080"
-             style="width:100%;height:auto;border:2px inset #888;display:block;" />
-    </div>
-</div>
+![preview](https://github.com/user-attachments/assets/dab85576-64cd-4be4-a898-82e80fbb3222)
 
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     SECTION 1 — MS Store Images
-     43 mobile suits need their img: URL replaced in msstore.html.
-     For each suit:
-       1. Open the gundam.fandom.com link in your browser
-       2. Right-click the main suit image → "Copy image address"
-       3. Open msstore.html, find the line with the matching id:
-       4. Replace the img:'...' value at the end of that line
-     ═══════════════════════════════════════════════════════════════════════════ -->
+---
 
-<div class="todo-card card">
-    <div class="card-header">📋 MS Store — Mobile Suit Images (msstore.html)</div>
-    <div class="card-body">
-        <p>For each ❌ suit below, find the image on The Gundam Wiki, right-click the main suit image → <strong>Copy image address</strong>, then paste it into the <code>img:'...'</code> field at the end of that suit's entry in <strong>msstore.html</strong>.</p>
+## 📋 MS Store — Mobile Suit Images
 
-        <div class="section-label">✅ CONFIRMED — These URLs are unique and should be correct</div>
-        <table style="margin-bottom:12px;">
-            <tr><th>Status</th><th>Suit Name</th><th>ID in msstore.html</th><th>Current URL (verify loads)</th></tr>
-            <tr><td class="status-confirm">✅ CHECK</td><td>MS-05B Zaku I</td>             <td>ms05b</td>    <td><a href="https://gundam.fandom.com/wiki/MS-05B_Zaku_I" target="_blank">gundam.fandom.com/wiki/MS-05B_Zaku_I</a></td></tr>
-            <tr><td class="status-confirm">✅ CHECK</td><td>MS-06F Zaku II</td>            <td>ms06f</td>    <td><a href="https://gundam.fandom.com/wiki/MS-06F_Zaku_II" target="_blank">gundam.fandom.com/wiki/MS-06F_Zaku_II</a></td></tr>
-            <tr><td class="status-confirm">✅ CHECK</td><td>MS-06S Zaku II Commander</td>  <td>ms06s</td>    <td><a href="https://gundam.fandom.com/wiki/MS-06S_Zaku_II" target="_blank">gundam.fandom.com/wiki/MS-06S_Zaku_II</a></td></tr>
-            <tr><td class="status-confirm">✅ CHECK</td><td>MS-07B Gouf</td>               <td>ms07b</td>    <td><a href="https://gundam.fandom.com/wiki/MS-07B_Gouf" target="_blank">gundam.fandom.com/wiki/MS-07B_Gouf</a></td></tr>
-            <tr><td class="status-confirm">✅ CHECK</td><td>MS-09B Dom</td>                <td>ms09b</td>    <td><a href="https://gundam.fandom.com/wiki/MS-09_Dom" target="_blank">gundam.fandom.com/wiki/MS-09_Dom</a></td></tr>
-            <tr><td class="status-confirm">✅ CHECK</td><td>MS-09R Rick Dom</td>           <td>ms09r</td>    <td><a href="https://gundam.fandom.com/wiki/MS-09R_Rick_Dom" target="_blank">gundam.fandom.com/wiki/MS-09R_Rick_Dom</a></td></tr>
-            <tr><td class="status-confirm">✅ CHECK</td><td>MS-14A Gelgoog</td>            <td>ms14a</td>    <td><a href="https://gundam.fandom.com/wiki/MS-14A_Gelgoog" target="_blank">gundam.fandom.com/wiki/MS-14A_Gelgoog</a></td></tr>
-            <tr><td class="status-confirm">✅ CHECK</td><td>MSM-04 Acguy</td>              <td>msm04</td>    <td><a href="https://gundam.fandom.com/wiki/MSM-04_Acguy" target="_blank">gundam.fandom.com/wiki/MSM-04_Acguy</a></td></tr>
-            <tr><td class="status-confirm">✅ CHECK</td><td>MSM-07 Z'Gok</td>              <td>msm07</td>    <td><a href="https://gundam.fandom.com/wiki/MSM-07_Z%27Gok" target="_blank">gundam.fandom.com/wiki/MSM-07_Z'Gok</a></td></tr>
-            <tr><td class="status-confirm">✅ CHECK</td><td>RX-75-4 Guntank</td>           <td>rx752</td>    <td><a href="https://gundam.fandom.com/wiki/RX-75-4_Guntank" target="_blank">gundam.fandom.com/wiki/RX-75-4_Guntank</a></td></tr>
-            <tr><td class="status-confirm">✅ CHECK</td><td>RX-77-2 Guncannon</td>         <td>rx772</td>    <td><a href="https://gundam.fandom.com/wiki/RX-77-2_Guncannon" target="_blank">gundam.fandom.com/wiki/RX-77-2_Guncannon</a></td></tr>
-            <tr><td class="status-confirm">✅ CHECK</td><td>RX-78-2 Gundam</td>            <td>rx782</td>    <td><a href="https://gundam.fandom.com/wiki/RX-78-2_Gundam" target="_blank">gundam.fandom.com/wiki/RX-78-2_Gundam</a></td></tr>
-            <tr><td class="status-confirm">✅ CHECK</td><td>RGM-79 GM</td>                 <td>rgm79</td>    <td><a href="https://gundam.fandom.com/wiki/RGM-79_GM" target="_blank">gundam.fandom.com/wiki/RGM-79_GM</a></td></tr>
-            <tr><td class="status-confirm">✅ CHECK</td><td>MRX-009 Psycho Gundam</td>     <td>mrx009</td>   <td><a href="https://gundam.fandom.com/wiki/MRX-009_Psycho_Gundam" target="_blank">gundam.fandom.com/wiki/MRX-009_Psycho_Gundam</a></td></tr>
-        </table>
+For each ❌ suit below, find the image on [The Gundam Wiki](https://gundam.fandom.com), right-click the main suit image → **Copy image address**, then paste it into the `img:'...'` field at the end of that suit's entry in **msstore.html**.
 
-        <div class="section-label">❌ TODO — These use a placeholder image and need a real URL</div>
-        <table>
-            <tr><th>Status</th><th>Suit Name</th><th>ID in msstore.html</th><th>Get image from (The Gundam Wiki)</th></tr>
+### ✅ Confirmed — URLs should be correct (verify they load)
 
-            <!-- ONE YEAR WAR — ZEON -->
-            <tr><td colspan="4" style="background:#000181;color:#fff;font-size:0.7rem;padding:2px 8px;">One Year War — Principality of Zeon</td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MS-06J Zaku II Ground Type</td>      <td>ms06j</td>    <td><a href="https://gundam.fandom.com/wiki/MS-06J_Zaku_II_Ground_Type" target="_blank">wiki/MS-06J_Zaku_II_Ground_Type</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MS-06FZ Zaku II Kai</td>             <td>ms06fz</td>   <td><a href="https://gundam.fandom.com/wiki/MS-06FZ_Zaku_II_Kai" target="_blank">wiki/MS-06FZ_Zaku_II_Kai</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MS-06K Zaku Cannon</td>              <td>ms06k</td>    <td><a href="https://gundam.fandom.com/wiki/MS-06K_Zaku_Cannon" target="_blank">wiki/MS-06K_Zaku_Cannon</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MS-07B-3 Gouf Custom</td>           <td>ms07b3</td>   <td><a href="https://gundam.fandom.com/wiki/MS-07B-3_Gouf_Custom" target="_blank">wiki/MS-07B-3_Gouf_Custom</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MS-09R-II Rick Dom II</td>           <td>ms09rii</td>  <td><a href="https://gundam.fandom.com/wiki/MS-09R-2_Rick_Dom_II" target="_blank">wiki/MS-09R-2_Rick_Dom_II</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MS-14Jg Gelgoog Jäger</td>          <td>ms14jg</td>   <td><a href="https://gundam.fandom.com/wiki/MS-14Jg_Gelgoog_J%C3%A4ger" target="_blank">wiki/MS-14Jg_Gelgoog_Jäger</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MS-18E Kämpfer</td>                 <td>ms18e</td>    <td><a href="https://gundam.fandom.com/wiki/MS-18E_K%C3%A4mpfer" target="_blank">wiki/MS-18E_Kämpfer</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MSM-03 Gogg</td>                    <td>msm03</td>    <td><a href="https://gundam.fandom.com/wiki/MSM-03_Gogg" target="_blank">wiki/MSM-03_Gogg</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MSM-07E Z'Gok-E</td>                <td>msm07e</td>   <td><a href="https://gundam.fandom.com/wiki/MSM-07E_Z%27Gok-E" target="_blank">wiki/MSM-07E_Z'Gok-E</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MSM-10 Zock</td>                    <td>msm10</td>    <td><a href="https://gundam.fandom.com/wiki/MSM-10_Zock" target="_blank">wiki/MSM-10_Zock</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MSN-02 Zeong</td>                   <td>msn02</td>    <td><a href="https://gundam.fandom.com/wiki/MSN-02_Zeong" target="_blank">wiki/MSN-02_Zeong</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>YMS-15 Gyan</td>                    <td>yms15</td>    <td><a href="https://gundam.fandom.com/wiki/YMS-15_Gyan" target="_blank">wiki/YMS-15_Gyan</a></td></tr>
+| Status | Suit Name | ID in msstore.html | Gundam Wiki Page |
+|---|---|---|---|
+| ✅ CHECK | MS-05B Zaku I | `ms05b` | [wiki/MS-05B_Zaku_I](https://gundam.fandom.com/wiki/MS-05B_Zaku_I) |
+| ✅ CHECK | MS-06F Zaku II | `ms06f` | [wiki/MS-06F_Zaku_II](https://gundam.fandom.com/wiki/MS-06F_Zaku_II) |
+| ✅ CHECK | MS-06S Zaku II Commander | `ms06s` | [wiki/MS-06S_Zaku_II](https://gundam.fandom.com/wiki/MS-06S_Zaku_II) |
+| ✅ CHECK | MS-07B Gouf | `ms07b` | [wiki/MS-07B_Gouf](https://gundam.fandom.com/wiki/MS-07B_Gouf) |
+| ✅ CHECK | MS-09B Dom | `ms09b` | [wiki/MS-09_Dom](https://gundam.fandom.com/wiki/MS-09_Dom) |
+| ✅ CHECK | MS-09R Rick Dom | `ms09r` | [wiki/MS-09R_Rick_Dom](https://gundam.fandom.com/wiki/MS-09R_Rick_Dom) |
+| ✅ CHECK | MS-14A Gelgoog | `ms14a` | [wiki/MS-14A_Gelgoog](https://gundam.fandom.com/wiki/MS-14A_Gelgoog) |
+| ✅ CHECK | MSM-04 Acguy | `msm04` | [wiki/MSM-04_Acguy](https://gundam.fandom.com/wiki/MSM-04_Acguy) |
+| ✅ CHECK | MSM-07 Z'Gok | `msm07` | [wiki/MSM-07_Z'Gok](https://gundam.fandom.com/wiki/MSM-07_Z%27Gok) |
+| ✅ CHECK | RX-75-4 Guntank | `rx752` | [wiki/RX-75-4_Guntank](https://gundam.fandom.com/wiki/RX-75-4_Guntank) |
+| ✅ CHECK | RX-77-2 Guncannon | `rx772` | [wiki/RX-77-2_Guncannon](https://gundam.fandom.com/wiki/RX-77-2_Guncannon) |
+| ✅ CHECK | RX-78-2 Gundam | `rx782` | [wiki/RX-78-2_Gundam](https://gundam.fandom.com/wiki/RX-78-2_Gundam) |
+| ✅ CHECK | RGM-79 GM | `rgm79` | [wiki/RGM-79_GM](https://gundam.fandom.com/wiki/RGM-79_GM) |
+| ✅ CHECK | MRX-009 Psycho Gundam | `mrx009` | [wiki/MRX-009_Psycho_Gundam](https://gundam.fandom.com/wiki/MRX-009_Psycho_Gundam) |
 
-            <!-- ONE YEAR WAR — FEDERATION -->
-            <tr><td colspan="4" style="background:#000181;color:#fff;font-size:0.7rem;padding:2px 8px;">One Year War — Earth Federation</td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RX-78NT-1 Gundam NT-1 "Alex"</td>  <td>rx78nt1</td>  <td><a href="https://gundam.fandom.com/wiki/RX-78NT-1_Gundam_NT-1" target="_blank">wiki/RX-78NT-1_Gundam_NT-1</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RGM-79[G] GM Ground Type</td>       <td>rgm79g</td>   <td><a href="https://gundam.fandom.com/wiki/RGM-79%5BG%5D_GM_Ground_Type" target="_blank">wiki/RGM-79[G]_GM_Ground_Type</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RGM-79SP GM Sniper II</td>          <td>rgm79sp</td>  <td><a href="https://gundam.fandom.com/wiki/RGM-79SP_GM_Sniper_II" target="_blank">wiki/RGM-79SP_GM_Sniper_II</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RX-79[G] Gundam Ground Type</td>    <td>rx79g</td>    <td><a href="https://gundam.fandom.com/wiki/RX-79%5BG%5D_Gundam_Ground_Type" target="_blank">wiki/RX-79[G]_Gundam_Ground_Type</a></td></tr>
+### ❌ TODO — Placeholder images that need a real URL
 
-            <!-- STARDUST MEMORY -->
-            <tr><td colspan="4" style="background:#000181;color:#fff;font-size:0.7rem;padding:2px 8px;">Stardust Memory</td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RX-78GP01 Gundam "Zephyranthes"</td> <td>rx78gp01</td> <td><a href="https://gundam.fandom.com/wiki/RX-78GP01_Gundam" target="_blank">wiki/RX-78GP01_Gundam</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RX-78GP02A Gundam "Physalis"</td>    <td>rx78gp02</td> <td><a href="https://gundam.fandom.com/wiki/RX-78GP02A_Gundam" target="_blank">wiki/RX-78GP02A_Gundam</a></td></tr>
+**How to update:** click the link → right-click suit image → Copy image address → paste into `img:'...'` in `msstore.html`
 
-            <!-- GRYPS CONFLICT -->
-            <tr><td colspan="4" style="background:#000181;color:#fff;font-size:0.7rem;padding:2px 8px;">Gryps Conflict</td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RX-178 Gundam Mk-II</td>            <td>rx178</td>    <td><a href="https://gundam.fandom.com/wiki/RX-178_Gundam_Mk-II" target="_blank">wiki/RX-178_Gundam_Mk-II</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MSZ-006 Zeta Gundam</td>            <td>msz006</td>   <td><a href="https://gundam.fandom.com/wiki/MSZ-006_Zeta_Gundam" target="_blank">wiki/MSZ-006_Zeta_Gundam</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MSN-00100 Hyaku Shiki</td>          <td>msn00100</td> <td><a href="https://gundam.fandom.com/wiki/MSN-00100_Hyaku_Shiki" target="_blank">wiki/MSN-00100_Hyaku_Shiki</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MSA-003 Nemo</td>                   <td>msa003</td>   <td><a href="https://gundam.fandom.com/wiki/MSA-003_Nemo" target="_blank">wiki/MSA-003_Nemo</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RMS-106 Hi-Zack</td>                <td>rms106</td>   <td><a href="https://gundam.fandom.com/wiki/RMS-106_Hi-Zack" target="_blank">wiki/RMS-106_Hi-Zack</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>PMX-003 The O</td>                  <td>pmx003</td>   <td><a href="https://gundam.fandom.com/wiki/PMX-003_The_O" target="_blank">wiki/PMX-003_The_O</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RX-139 Hambrabi</td>                <td>rx139</td>    <td><a href="https://gundam.fandom.com/wiki/RX-139_Hambrabi" target="_blank">wiki/RX-139_Hambrabi</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>AMX-003 Gaza-C</td>                 <td>amx003</td>   <td><a href="https://gundam.fandom.com/wiki/AMX-003_Gaza-C" target="_blank">wiki/AMX-003_Gaza-C</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>AMX-004 Qubeley</td>                <td>amx004</td>   <td><a href="https://gundam.fandom.com/wiki/AMX-004_Qubeley" target="_blank">wiki/AMX-004_Qubeley</a></td></tr>
+#### One Year War — Principality of Zeon
 
-            <!-- NEO ZEON WAR (ZZ) -->
-            <tr><td colspan="4" style="background:#000181;color:#fff;font-size:0.7rem;padding:2px 8px;">Second Neo Zeon War (ZZ era)</td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MSZ-010 ZZ Gundam</td>             <td>msz010</td>   <td><a href="https://gundam.fandom.com/wiki/MSZ-010_ZZ_Gundam" target="_blank">wiki/MSZ-010_ZZ_Gundam</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>AMX-014 Döven Wolf</td>            <td>amx014</td>   <td><a href="https://gundam.fandom.com/wiki/AMX-014_D%C3%B6ven_Wolf" target="_blank">wiki/AMX-014_Döven_Wolf</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>AMX-011 Zaku III</td>              <td>amx011</td>   <td><a href="https://gundam.fandom.com/wiki/AMX-011_Zaku_III" target="_blank">wiki/AMX-011_Zaku_III</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>AMX-103 Hamma Hamma</td>           <td>amx103</td>   <td><a href="https://gundam.fandom.com/wiki/AMX-103_Hamma_Hamma" target="_blank">wiki/AMX-103_Hamma_Hamma</a></td></tr>
+| Status | Suit Name | ID | Gundam Wiki Page |
+|---|---|---|---|
+| ❌ TODO | MS-06J Zaku II Ground Type | `ms06j` | [wiki/MS-06J_Zaku_II_Ground_Type](https://gundam.fandom.com/wiki/MS-06J_Zaku_II_Ground_Type) |
+| ❌ TODO | MS-06FZ Zaku II Kai | `ms06fz` | [wiki/MS-06FZ_Zaku_II_Kai](https://gundam.fandom.com/wiki/MS-06FZ_Zaku_II_Kai) |
+| ❌ TODO | MS-06K Zaku Cannon | `ms06k` | [wiki/MS-06K_Zaku_Cannon](https://gundam.fandom.com/wiki/MS-06K_Zaku_Cannon) |
+| ❌ TODO | MS-07B-3 Gouf Custom | `ms07b3` | [wiki/MS-07B-3_Gouf_Custom](https://gundam.fandom.com/wiki/MS-07B-3_Gouf_Custom) |
+| ❌ TODO | MS-09R-II Rick Dom II | `ms09rii` | [wiki/MS-09R-2_Rick_Dom_II](https://gundam.fandom.com/wiki/MS-09R-2_Rick_Dom_II) |
+| ❌ TODO | MS-14Jg Gelgoog Jäger | `ms14jg` | [wiki/MS-14Jg_Gelgoog_Jäger](https://gundam.fandom.com/wiki/MS-14Jg_Gelgoog_J%C3%A4ger) |
+| ❌ TODO | MS-18E Kämpfer | `ms18e` | [wiki/MS-18E_Kämpfer](https://gundam.fandom.com/wiki/MS-18E_K%C3%A4mpfer) |
+| ❌ TODO | MSM-03 Gogg | `msm03` | [wiki/MSM-03_Gogg](https://gundam.fandom.com/wiki/MSM-03_Gogg) |
+| ❌ TODO | MSM-07E Z'Gok-E | `msm07e` | [wiki/MSM-07E_Z'Gok-E](https://gundam.fandom.com/wiki/MSM-07E_Z%27Gok-E) |
+| ❌ TODO | MSM-10 Zock | `msm10` | [wiki/MSM-10_Zock](https://gundam.fandom.com/wiki/MSM-10_Zock) |
+| ❌ TODO | MSN-02 Zeong | `msn02` | [wiki/MSN-02_Zeong](https://gundam.fandom.com/wiki/MSN-02_Zeong) |
+| ❌ TODO | YMS-15 Gyan | `yms15` | [wiki/YMS-15_Gyan](https://gundam.fandom.com/wiki/YMS-15_Gyan) |
 
-            <!-- CHAR'S COUNTERATTACK -->
-            <tr><td colspan="4" style="background:#000181;color:#fff;font-size:0.7rem;padding:2px 8px;">Char's Counterattack (0093)</td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RX-93 ν Gundam</td>                <td>rx93</td>     <td><a href="https://gundam.fandom.com/wiki/RX-93_%CE%BD_Gundam" target="_blank">wiki/RX-93_ν_Gundam</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MSN-04 Sazabi</td>                 <td>msn04</td>    <td><a href="https://gundam.fandom.com/wiki/MSN-04_Sazabi" target="_blank">wiki/MSN-04_Sazabi</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MSN-03 Jagd Doga</td>              <td>msn03</td>    <td><a href="https://gundam.fandom.com/wiki/MSN-03_Jagd_Doga" target="_blank">wiki/MSN-03_Jagd_Doga</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>AMS-119 Geara Doga</td>            <td>ams119</td>   <td><a href="https://gundam.fandom.com/wiki/AMS-119_Geara_Doga" target="_blank">wiki/AMS-119_Geara_Doga</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RGM-89 Jegan</td>                  <td>rgm89</td>    <td><a href="https://gundam.fandom.com/wiki/RGM-89_Jegan" target="_blank">wiki/RGM-89_Jegan</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RGZ-91 Re-GZ</td>                  <td>rgz91</td>    <td><a href="https://gundam.fandom.com/wiki/RGZ-91_Re-GZ" target="_blank">wiki/RGZ-91_Re-GZ</a></td></tr>
+#### One Year War — Earth Federation
 
-            <!-- UNICORN ERA -->
-            <tr><td colspan="4" style="background:#000181;color:#fff;font-size:0.7rem;padding:2px 8px;">Unicorn Era (0096)</td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RX-0 Unicorn Gundam</td>           <td>rx0</td>      <td><a href="https://gundam.fandom.com/wiki/RX-0_Unicorn_Gundam" target="_blank">wiki/RX-0_Unicorn_Gundam</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>MSN-06S Sinanju</td>               <td>msn06s</td>   <td><a href="https://gundam.fandom.com/wiki/MSN-06S_Sinanju" target="_blank">wiki/MSN-06S_Sinanju</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>AMS-129 Geara Zulu</td>            <td>ams129</td>   <td><a href="https://gundam.fandom.com/wiki/AMS-129_Geara_Zulu" target="_blank">wiki/AMS-129_Geara_Zulu</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RGM-96X Jesta</td>                 <td>rgm96x</td>   <td><a href="https://gundam.fandom.com/wiki/RGM-96X_Jesta" target="_blank">wiki/RGM-96X_Jesta</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>RGZ-95 ReZEL</td>                  <td>rgz95</td>    <td><a href="https://gundam.fandom.com/wiki/RGZ-95_ReZEL" target="_blank">wiki/RGZ-95_ReZEL</a></td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>NZ-666 Kshatriya</td>              <td>nz666</td>    <td><a href="https://gundam.fandom.com/wiki/NZ-666_Kshatriya" target="_blank">wiki/NZ-666_Kshatriya</a></td></tr>
-        </table>
+| Status | Suit Name | ID | Gundam Wiki Page |
+|---|---|---|---|
+| ❌ TODO | RX-78NT-1 Gundam NT-1 "Alex" | `rx78nt1` | [wiki/RX-78NT-1_Gundam_NT-1](https://gundam.fandom.com/wiki/RX-78NT-1_Gundam_NT-1) |
+| ❌ TODO | RGM-79[G] GM Ground Type | `rgm79g` | [wiki/RGM-79[G]_GM_Ground_Type](https://gundam.fandom.com/wiki/RGM-79%5BG%5D_GM_Ground_Type) |
+| ❌ TODO | RGM-79SP GM Sniper II | `rgm79sp` | [wiki/RGM-79SP_GM_Sniper_II](https://gundam.fandom.com/wiki/RGM-79SP_GM_Sniper_II) |
+| ❌ TODO | RX-79[G] Gundam Ground Type | `rx79g` | [wiki/RX-79[G]_Gundam_Ground_Type](https://gundam.fandom.com/wiki/RX-79%5BG%5D_Gundam_Ground_Type) |
 
-        <p style="font-size:0.75rem;margin-top:10px;color:#333;">
-            <strong>How to update an image:</strong><br>
-            1. Click the wiki link above → go to the suit's page<br>
-            2. Right-click the main suit image → <em>Copy image address</em><br>
-            3. Open <code>msstore.html</code> → find the line containing <code>id:'SUITID'</code><br>
-            4. At the end of that line, replace <code>img:'...'</code> with the copied URL<br>
-            5. Mark the row as ✅ DONE in this file
-        </p>
-    </div>
-</div>
+#### Stardust Memory
 
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     SECTION 2 — Future Tasks (add more as needed)
-     ═══════════════════════════════════════════════════════════════════════════ -->
+| Status | Suit Name | ID | Gundam Wiki Page |
+|---|---|---|---|
+| ❌ TODO | RX-78GP01 Gundam "Zephyranthes" | `rx78gp01` | [wiki/RX-78GP01_Gundam](https://gundam.fandom.com/wiki/RX-78GP01_Gundam) |
+| ❌ TODO | RX-78GP02A Gundam "Physalis" | `rx78gp02` | [wiki/RX-78GP02A_Gundam](https://gundam.fandom.com/wiki/RX-78GP02A_Gundam) |
 
-<div class="todo-card card">
-    <div class="card-header">📋 Future Tasks</div>
-    <div class="card-body">
-        <table>
-            <tr><th>Status</th><th>Task</th><th>Notes</th></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>Add a proper backend/database for user accounts</td><td>Currently using localStorage. Consider Node.js + MySQL when ready.</td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>Populate Inventory — Weapons panel</td><td>Currently shows placeholder text.</td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>Populate Inventory — Armour panel</td><td>Currently shows placeholder text.</td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>Populate Map window</td><td>Currently shows placeholder text.</td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>Replace Browser window URL</td><td>Currently points to example.com which blocks iframes. Replace with a useful internal page.</td></tr>
-        </table>
-    </div>
-</div>
+#### Gryps Conflict
 
-<p class="note">Last updated: September 2026 — open todo.html in a browser to view this list.</p>
+| Status | Suit Name | ID | Gundam Wiki Page |
+|---|---|---|---|
+| ❌ TODO | RX-178 Gundam Mk-II | `rx178` | [wiki/RX-178_Gundam_Mk-II](https://gundam.fandom.com/wiki/RX-178_Gundam_Mk-II) |
+| ❌ TODO | MSZ-006 Zeta Gundam | `msz006` | [wiki/MSZ-006_Zeta_Gundam](https://gundam.fandom.com/wiki/MSZ-006_Zeta_Gundam) |
+| ❌ TODO | MSN-00100 Hyaku Shiki | `msn00100` | [wiki/MSN-00100_Hyaku_Shiki](https://gundam.fandom.com/wiki/MSN-00100_Hyaku_Shiki) |
+| ❌ TODO | MSA-003 Nemo | `msa003` | [wiki/MSA-003_Nemo](https://gundam.fandom.com/wiki/MSA-003_Nemo) |
+| ❌ TODO | RMS-106 Hi-Zack | `rms106` | [wiki/RMS-106_Hi-Zack](https://gundam.fandom.com/wiki/RMS-106_Hi-Zack) |
+| ❌ TODO | PMX-003 The O | `pmx003` | [wiki/PMX-003_The_O](https://gundam.fandom.com/wiki/PMX-003_The_O) |
+| ❌ TODO | RX-139 Hambrabi | `rx139` | [wiki/RX-139_Hambrabi](https://gundam.fandom.com/wiki/RX-139_Hambrabi) |
+| ❌ TODO | AMX-003 Gaza-C | `amx003` | [wiki/AMX-003_Gaza-C](https://gundam.fandom.com/wiki/AMX-003_Gaza-C) |
+| ❌ TODO | AMX-004 Qubeley | `amx004` | [wiki/AMX-004_Qubeley](https://gundam.fandom.com/wiki/AMX-004_Qubeley) |
 
-<div class="todo-card card">
-    <div class="card-header">📜 Credits and Stuff</div>
-    <div class="card-body">
-        <p><strong>Scripts used</strong></p>
-        <p>
-            - FOS - Fake Operating System<br>
-            <a href="https://github.com/victorqribeiro/FOS" target="_blank">https://github.com/victorqribeiro/FOS</a>
-        </p>
-        <p>
-            - Windows 95 UI Kit<br>
-            <a href="https://github.com/themesberg/windows-95-ui-kit" target="_blank">https://github.com/themesberg/windows-95-ui-kit</a>
-        </p>
-    </div>
-</div>
+#### Second Neo Zeon War (ZZ era)
 
-</body>
-</html>
+| Status | Suit Name | ID | Gundam Wiki Page |
+|---|---|---|---|
+| ❌ TODO | MSZ-010 ZZ Gundam | `msz010` | [wiki/MSZ-010_ZZ_Gundam](https://gundam.fandom.com/wiki/MSZ-010_ZZ_Gundam) |
+| ❌ TODO | AMX-014 Döven Wolf | `amx014` | [wiki/AMX-014_Döven_Wolf](https://gundam.fandom.com/wiki/AMX-014_D%C3%B6ven_Wolf) |
+| ❌ TODO | AMX-011 Zaku III | `amx011` | [wiki/AMX-011_Zaku_III](https://gundam.fandom.com/wiki/AMX-011_Zaku_III) |
+| ❌ TODO | AMX-103 Hamma Hamma | `amx103` | [wiki/AMX-103_Hamma_Hamma](https://gundam.fandom.com/wiki/AMX-103_Hamma_Hamma) |
+
+#### Char's Counterattack (0093)
+
+| Status | Suit Name | ID | Gundam Wiki Page |
+|---|---|---|---|
+| ❌ TODO | RX-93 ν Gundam | `rx93` | [wiki/RX-93_ν_Gundam](https://gundam.fandom.com/wiki/RX-93_%CE%BD_Gundam) |
+| ❌ TODO | MSN-04 Sazabi | `msn04` | [wiki/MSN-04_Sazabi](https://gundam.fandom.com/wiki/MSN-04_Sazabi) |
+| ❌ TODO | MSN-03 Jagd Doga | `msn03` | [wiki/MSN-03_Jagd_Doga](https://gundam.fandom.com/wiki/MSN-03_Jagd_Doga) |
+| ❌ TODO | AMS-119 Geara Doga | `ams119` | [wiki/AMS-119_Geara_Doga](https://gundam.fandom.com/wiki/AMS-119_Geara_Doga) |
+| ❌ TODO | RGM-89 Jegan | `rgm89` | [wiki/RGM-89_Jegan](https://gundam.fandom.com/wiki/RGM-89_Jegan) |
+| ❌ TODO | RGZ-91 Re-GZ | `rgz91` | [wiki/RGZ-91_Re-GZ](https://gundam.fandom.com/wiki/RGZ-91_Re-GZ) |
+
+#### Unicorn Era (0096)
+
+| Status | Suit Name | ID | Gundam Wiki Page |
+|---|---|---|---|
+| ❌ TODO | RX-0 Unicorn Gundam | `rx0` | [wiki/RX-0_Unicorn_Gundam](https://gundam.fandom.com/wiki/RX-0_Unicorn_Gundam) |
+| ❌ TODO | MSN-06S Sinanju | `msn06s` | [wiki/MSN-06S_Sinanju](https://gundam.fandom.com/wiki/MSN-06S_Sinanju) |
+| ❌ TODO | AMS-129 Geara Zulu | `ams129` | [wiki/AMS-129_Geara_Zulu](https://gundam.fandom.com/wiki/AMS-129_Geara_Zulu) |
+| ❌ TODO | RGM-96X Jesta | `rgm96x` | [wiki/RGM-96X_Jesta](https://gundam.fandom.com/wiki/RGM-96X_Jesta) |
+| ❌ TODO | RGZ-95 ReZEL | `rgz95` | [wiki/RGZ-95_ReZEL](https://gundam.fandom.com/wiki/RGZ-95_ReZEL) |
+| ❌ TODO | NZ-666 Kshatriya | `nz666` | [wiki/NZ-666_Kshatriya](https://gundam.fandom.com/wiki/NZ-666_Kshatriya) |
+
+---
+
+## 📋 Future Tasks
+
+| Status | Task | Notes |
+|---|---|---|
+| ❌ TODO | Add a proper backend/database for user accounts | Currently using localStorage. Consider Node.js + MySQL when ready. |
+| ❌ TODO | Populate Inventory — Weapons panel | Currently shows placeholder text. |
+| ❌ TODO | Populate Inventory — Armour panel | Currently shows placeholder text. |
+| ❌ TODO | Populate Map window | Currently shows placeholder text. |
+| ❌ TODO | Replace Browser window URL | Currently points to example.com which blocks iframes. Replace with a useful internal page. |
+
+---
+
+## 📜 Credits and Stuff
+
+**Scripts used**
+
+- FOS - Fake Operating System
+  https://github.com/victorqribeiro/FOS
+
+- Windows 95 UI Kit
+  https://github.com/themesberg/windows-95-ui-kit
