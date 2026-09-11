@@ -6,9 +6,11 @@
 
 Project Colony Drop is a love letter to the old Gundam forum RPGs that lived and died on Geocities and early web forums in the early 2000s — threadbare HTML pages where fans would write out their pilot stats, pick a mobile suit from a text list, and battle it out in collaborative fiction one post at a time.
 
-This project is an attempt to bring that spirit into something fully playable and properly structured, built on the [Mobile Suit Gundam 5e](https://gundam5e.com) ruleset — a free fan adaptation of D&D 5th Edition set in the Universal Century. The end goal is a full browser-based multiplayer RPG platform: players create their pilot, choose their Starting mobile suit, and manage their character through a shared persistent world — while a Game Master oversees the action, moderates interactions, and drives the narrative. Think less companion app, more digital tabletop with the GMs sitting at the head of the table.
+This project is an attempt to bring that spirit into something fully playable and properly structured, Based on the [Mobile Suit Gundam 5e](https://gundam5e.com) ruleset — a free fan adaptation of D&D 5th Edition set in the Universal Century. The end goal is a full browser-based multiplayer RPG platform: players create their pilot, choose their mobile suit, and manage their character through a shared persistent world — while Game Master's oversee the action, interactions, and drives the narrative. Think less companion app, more digital tabletop with a GM almost always sitting at the head of the table.
 
 The interface leans fully into the retro aesthetic: a Windows 95-style desktop running in the browser, complete with draggable windows, a taskbar, and the kind of pixelated charm that feels right at home with a Zaku II stat block. The goal is something that feels like you're booting it up on a beige tower PC in 2002 — but actually works like a modern web application underneath.
+
+While the Gundam UC setting drives the current build, the long-term goal is to develop this into a general-purpose framework — one that could power any 5e-adjacent tabletop RPG, or give someone the foundation to build their own setting from scratch. The Gundam skin is the first use case, not the ceiling.
 
 ---
 
