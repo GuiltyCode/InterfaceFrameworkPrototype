@@ -125,11 +125,28 @@ For each ❌ suit below, find the image on [The Gundam Wiki](https://gundam.fand
 
 | Status | Task | Notes |
 |---|---|---|
-| ❌ TODO | Add a proper backend/database for user accounts | Currently using localStorage. Consider Node.js + MySQL when ready. |
 | ❌ TODO | Populate Inventory — Weapons panel | Currently shows placeholder text. |
 | ❌ TODO | Populate Inventory — Armour panel | Currently shows placeholder text. |
 | ❌ TODO | Populate Map window | Currently shows placeholder text. |
 | ❌ TODO | Replace Browser window URL | Currently points to example.com which blocks iframes. Replace with a useful internal page. |
+| ❌ TODO | MS Store suit images | 43 suits still using placeholder images. See image TODO list above. |
+
+---
+
+## ✅ Completed Tasks
+
+| Task | Notes |
+|---|---|
+| ✅ DONE | Backend/database for user accounts | Node.js + Express + MySQL. See `server/` and `setup/Login.html`. |
+| ✅ DONE | Character system backed by MySQL | Character data stored in `steelfangsden_chars` database. |
+| ✅ DONE | Login / Register system | Standalone `index.html` login page with bcrypt password hashing. |
+| ✅ DONE | User roles (User / Mod / Admin) | Role stored in DB, returned in session. Default admin via `server/seed.js`. |
+| ✅ DONE | Win95 desktop UI | FOS custom elements + Windows 95 UI Kit styling. |
+| ✅ DONE | MS Store with 50 official UC suits | Filterable by era, faction, rarity. Stats based on Gundam 5e ruleset. |
+| ✅ DONE | Character creation with Gundam 5e rules | Class, race, abilities (4d6 drop lowest), Gilla, active mobile suit. |
+| ✅ DONE | Active mobile suit tracking | Equip from MS Store, reflected in Inventory and Character windows. |
+| ✅ DONE | Discord OAuth2 UI stub | Login + Register buttons on `index.html`, wired to redirect. Awaiting Client ID + backend routes to go live. |
+| ✅ DONE | Discord OAuth2 backend | Server routes `/auth/discord` and `/auth/discord/callback` implemented. See `setup/discordsetup.html`. Awaiting Client ID + Secret in `.env`. |
 
 ---
 
