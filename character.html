@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <!-- Win95 styles -->
+    <link type="text/css" rel="stylesheet" href="css/w95.css">
+    <style>
+        /* Match the fos win-card interior */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: #c0c0c0;
+            overflow-y: auto;
+        }
+
+        body {
+            font-family: 'Windows 95', sans-serif;
+            font-size: 0.82rem;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        h6 {
+            background: #000181;
+            color: #fff;
+            padding: 2px 6px;
+            margin: 10px 0 6px;
+            font-size: 0.8rem;
+            font-family: 'Windows 95', sans-serif;
+        }
+
+        /* Stat sheet */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .stat-box {
+            border: 2px inset #888;
+            background: #fff;
+            text-align: center;
+            padding: 4px 2px;
+        }
+        .stat-box .stat-label { font-size: 0.65rem; color: #444; }
+        .stat-box .stat-value { font-size: 1.1rem; font-weight: bold; }
+        .stat-box .stat-mod   { font-size: 0.65rem; color: #000181; }
+
+        .char-table td { padding: 2px 6px; vertical-align: top; }
+        .char-table td:first-child { font-weight: bold; white-space: nowrap; width: 110px; }
+
+        /* Creation form */
+        label { display: block; margin-bottom: 2px; }
+
+        input[type=text], select, input[type=number], input[type=email] {
+            width: 100%;
+            margin-bottom: 6px;
+            border: 2px inset #888;
+            padding: 2px 4px;
+            font-family: 'Windows 95', sans-serif;
+            font-size: 0.8rem;
+            background: #fff;
+            box-sizing: border-box;
+        }
+        input[type=number].score-input {
+            width: 54px;
+            text-align: center;
+        }
+
+        .roll-btn {
+            font-size: 0.7rem;
+            padding: 1px 6px;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        .score-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+        .score-row label { margin: 0; width: 36px; font-weight: bold; flex-shrink: 0; }
+    </style>
+</head>
+<body>
+    <div id="char-body">
+        <p style="color:#666;">Loading...</p>
+    </div>
+
+    <script>
+    (function () {
+
+        var API = '';  // same origin
+
+        var ABILITY_NAMES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+        var CLASSES = [
+            'Cyber-Newtype', 'Executant', 'Fighter', 'Infiltrator',
+            'Newtype', 'Scout', 'Sentinel', 'Engineer'
+        ];
+        var BACKGROUNDS = [
+            'Brute', 'Clergy', 'Bureaucrat', 'Entertainer', 'Military',
+            'Mechanic', 'Spy', 'Thief', 'Vagrant', 'Colonist', 'Law Enforcement'
+        ];
+        var RACES = ['Spacenoid', 'Earthnoid'];
+
+        function modStr(score) {
+            var m = Math.floor((score - 10) / 2);
+            return (m >= 0 ? '+' : '') + m;
+        }
+
+        function roll4d6drop1() {
+            var dice = [0, 0, 0, 0].map(function () { return Math.ceil(Math.random() * 6); });
+            dice.sort(function (a, b) { return a - b; });
+            return dice[1] + dice[2] + dice[3];
+        }
+
+        // ── Render stat sheet ─────────────────────────────────────────────────
+
+        function renderCharSheet(ch) {
+            var html = '<h6>Character</h6>';
+            html += '<table class="char-table" style="width:100%;margin-bottom:4px;">';
+            html += '<tr><td>Name:</td><td>' + ch.name + '</td></tr>';
+            html += '<tr><td>Race:</td><td>' + ch.race + '</td></tr>';
+            html += '<tr><td>Class:</td><td>' + ch.cls + '</td></tr>';
+            html += '<tr><td>Level:</td><td>' + ch.level + '</td></tr>';
+            html += '<tr><td>Background:</td><td>' + ch.background + '</td></tr>';
+            html += '<tr><td>HP:</td><td>' + ch.hp + '</td></tr>';
+            html += '<tr><td>Armor Points:</td><td>' + ch.ap + '</td></tr>';
+            html += '<tr><td>Prof. Bonus:</td><td>+' + ch.profBonus + '</td></tr>';
+            html += '<tr><td>Mobile Suit:</td><td>' + (ch.mobileSuit || 'None') + '</td></tr>';
+            html += '<tr><td>Gilla (G):</td><td>' + (ch.gilla !== undefined ? ch.gilla.toLocaleString() + ' G' : '0 G') + '</td></tr>';
+            html += '</table>';
+
+            html += '<h6>Ability Scores</h6>';
+            html += '<div class="stat-grid">';
+            ABILITY_NAMES.forEach(function (ab) {
+                var score = ch.abilities[ab];
+                html += '<div class="stat-box">';
+                html += '<div class="stat-label">' + ab + '</div>';
+                html += '<div class="stat-value">' + score + '</div>';
+                html += '<div class="stat-mod">' + modStr(score) + '</div>';
+                html += '</div>';
+            });
+            html += '</div>';
+
+            if (ch.traits) {
+                html += '<h6>Personality Traits</h6>';
+                html += '<p style="margin:0 0 6px;background:#fff;padding:4px;border:1px inset #888;">' + ch.traits + '</p>';
+            }
+
+            html += '<div style="margin-top:8px;">';
+            html += '<button class="btn btn-sm btn-primary border-dark" onclick="charEdit()">';
+            html += '<span class="btn-text">✏️ Edit Character</span></button>';
+            html += '</div>';
+
+            document.getElementById('char-body').innerHTML = html;
+        }
+
+        // ── Render creation form ──────────────────────────────────────────────
+
+        function renderCharCreation(prefill) {
+            var ch = prefill || {};
+            var html = '<h6>New Character — Mobile Suit Gundam 5e</h6>';
+
+            html += '<label>Character Name</label>';
+            html += '<input type="text" id="cf-name" placeholder="e.g. Amuro Ray" value="' + (ch.name || '') + '" />';
+
+            html += '<label>Race</label><select id="cf-race">';
+            RACES.forEach(function (r) { html += '<option' + (ch.race === r ? ' selected' : '') + '>' + r + '</option>'; });
+            html += '</select>';
+
+            html += '<label>Class</label><select id="cf-class">';
+            CLASSES.forEach(function (c) { html += '<option' + (ch.cls === c ? ' selected' : '') + '>' + c + '</option>'; });
+            html += '</select>';
+
+            html += '<label>Background</label><select id="cf-bg">';
+            BACKGROUNDS.forEach(function (b) { html += '<option' + (ch.background === b ? ' selected' : '') + '>' + b + '</option>'; });
+            html += '</select>';
+
+            html += '<h6>Ability Scores <small style="font-weight:normal;font-size:0.7rem;">(4d6 drop lowest)</small></h6>';
+            html += '<div class="stat-grid">';
+            ABILITY_NAMES.forEach(function (ab) {
+                var val = ch.abilities ? (ch.abilities[ab] || 10) : 10;
+                html += '<div class="stat-box">';
+                html += '<div class="stat-label">' + ab + '</div>';
+                html += '<input type="number" class="score-input" id="cf-' + ab + '" value="' + val + '" min="3" max="20" />';
+                html += '<button class="btn btn-primary roll-btn" onclick="charRoll(\'' + ab + '\')">';
+                html += '<span class="btn-text">🎲</span></button>';
+                html += '</div>';
+            });
+            html += '</div>';
+            html += '<button class="btn btn-sm btn-primary border-dark" style="margin-bottom:6px;" onclick="charRollAll()">';
+            html += '<span class="btn-text">🎲 Roll All</span></button>';
+
+            html += '<label>Personality Traits (optional)</label>';
+            html += '<input type="text" id="cf-traits" placeholder="e.g. Determined, quiet, protective..." value="' + (ch.traits || '') + '" />';
+
+            html += '<label>Active Mobile Suit (optional)</label>';
+            html += '<input type="text" id="cf-suit" placeholder="e.g. RX-78-2 Gundam, Zaku II..." value="' + (ch.mobileSuit || '') + '" />';
+
+            html += '<label>Starting Gilla (G) <small style="font-weight:normal;font-size:0.7rem;">— backgrounds typically grant 500–1000 G</small></label>';
+            html += '<input type="number" id="cf-gilla" value="' + (ch.gilla !== undefined ? ch.gilla : 500) + '" min="0" style="width:100%;margin-bottom:6px;" />';
+
+            html += '<p id="cf-error" style="color:#c00;font-size:0.8rem;display:none;"></p>';
+            html += '<div style="margin-top:8px;display:flex;gap:6px;">';
+            html += '<button class="btn btn-sm btn-primary border-dark" onclick="charCreate()">';
+            html += '<span class="btn-text">✅ Create Character</span></button>';
+            html += '</div>';
+
+            document.getElementById('char-body').innerHTML = html;
+        }
+
+        // ── Actions ───────────────────────────────────────────────────────────
+
+        window.charRoll = function (ab) {
+            var el = document.getElementById('cf-' + ab);
+            if (el) el.value = roll4d6drop1();
+        };
+
+        window.charRollAll = function () {
+            ABILITY_NAMES.forEach(function (ab) { window.charRoll(ab); });
+        };
+
+        window.charCreate = function () {
+            var name = (document.getElementById('cf-name').value || '').trim();
+            if (!name) { alert('Please enter a character name.'); return; }
+
+            var abilities = {};
+            ABILITY_NAMES.forEach(function (ab) {
+                abilities[ab] = parseInt(document.getElementById('cf-' + ab).value) || 10;
+            });
+
+            var cls    = document.getElementById('cf-class').value;
+            var conMod = Math.floor((abilities.CON - 10) / 2);
+            var hitDice = {
+                'Cyber-Newtype': 6, 'Executant': 8, 'Fighter': 10,
+                'Infiltrator': 8, 'Newtype': 8, 'Scout': 10,
+                'Sentinel': 10, 'Engineer': 8
+            };
+
+            var payload = {
+                name:       name,
+                race:       document.getElementById('cf-race').value,
+                cls:        cls,
+                level:      1,
+                background: document.getElementById('cf-bg').value,
+                abilities:  abilities,
+                hp:         Math.max(1, (hitDice[cls] || 8) + conMod),
+                ap:         10 + conMod,
+                profBonus:  2,
+                traits:     document.getElementById('cf-traits').value.trim(),
+                mobileSuit: document.getElementById('cf-suit').value.trim() || null,
+                gilla:      parseInt(document.getElementById('cf-gilla').value) || 0
+            };
+
+            var errEl = document.getElementById('cf-error');
+            var btn   = document.querySelector('[onclick="charCreate()"]');
+            if (btn) { btn.disabled = true; btn.querySelector('.btn-text').textContent = 'Saving...'; }
+
+            fetch(API + '/api/character', {
+                method:      'POST',
+                credentials: 'include',
+                headers:     { 'Content-Type': 'application/json' },
+                body:        JSON.stringify(payload)
+            })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+            .then(function (res) {
+                if (!res.ok) {
+                    if (errEl) { errEl.textContent = res.data.error || 'Save failed.'; errEl.style.display = 'block'; }
+                    return;
+                }
+                // Re-fetch the full character to render the sheet
+                return fetch(API + '/api/character', { credentials: 'include' })
+                    .then(function (r) { return r.json(); })
+                    .then(function (ch) { if (ch) renderCharSheet(ch); });
+            })
+            .catch(function () {
+                if (errEl) { errEl.textContent = 'Could not reach the server.'; errEl.style.display = 'block'; }
+            })
+            .finally(function () {
+                if (btn) { btn.disabled = false; btn.querySelector('.btn-text').textContent = '✅ Create Character'; }
+            });
+        };
+
+        window.charEdit = function () {
+            // Fetch current data to pre-fill the form
+            fetch(API + '/api/character', { credentials: 'include' })
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (ch) { renderCharCreation(ch || {}); })
+                .catch(function () { renderCharCreation({}); });
+        };
+
+        // Called by desktop.html after equipping/unequipping a mobile suit
+        window.refreshChar = function () {
+            fetch(API + '/api/character', { credentials: 'include' })
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (ch) {
+                    if (ch) renderCharSheet(ch);
+                    else renderCharCreation({});
+                })
+                .catch(function () {
+                    document.getElementById('char-body').innerHTML =
+                        '<p style="color:#c00;font-size:0.82rem;">Failed to load character.</p>';
+                });
+        };
+
+        // ── Init ──────────────────────────────────────────────────────────────
+        if (window.parent === window) {
+            // Opened directly — init now
+            window.refreshChar();
+        } else {
+            // Inside iframe — wait for parent to call refreshChar()
+            document.getElementById('char-body').innerHTML =
+                '<p style="color:#666;font-family:\'Windows 95\',sans-serif;font-size:0.82rem;">Loading...</p>';
+        }
+
+    })();
+    </script>
+</body>
+</html>

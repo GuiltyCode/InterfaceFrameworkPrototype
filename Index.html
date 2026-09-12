@@ -4,25 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
+    <title>SteelfangsDen — Sign In</title>
     <!-- Bootstrap CSS -->
     <link type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
     <!-- Win95 styles -->
     <link type="text/css" rel="stylesheet" href="css/w95.css">
-    <!-- FOS desktop styles -->
-    <link rel="stylesheet" type="text/css" href="css/main.css" />
-    <script src="js/fos.min.js"></script>
     <style>
-        /* ── Auth overlay ─────────────────────────────────────────────────── */
-        #auth-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
+        html, body {
+            margin: 0; padding: 0; height: 100%;
             background-color: #008081;
+        }
+        body {
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        #auth-overlay .fmxw-400 { max-width: 400px; width: 100%; }
+        .fmxw-400 { max-width: 400px; width: 100%; padding: 16px; }
 
         .auth-error {
             color: #c00;
@@ -31,340 +28,151 @@
             display: none;
         }
 
-        /* ── Desktop root ─────────────────────────────────────────────────── */
-        #desktop-root { display: none; }
-
-        /* ── Taskbar — override fos-bar with w95 navbar styling ───────────── */
-        fos-bar {
-            background-color: #c0c0c0 !important;
-            border-top: 2px solid #ffffff;
-            box-shadow: none !important;
-            height: 40px !important;
-            padding: 0 4px !important;
-            display: flex !important;
-            align-items: center !important;
+        /* ── Discord button ───────────────────────────────────────────────── */
+        .discord-divider {
+            text-align: center;
+            margin: 10px 0 8px;
+            font-size: 0.75rem;
+            color: #888;
+            position: relative;
         }
-
-        /* Taskbar clock */
-        #taskbar-clock {
-            font-family: 'Windows 95', sans-serif;
-            font-size: 0.8rem;
-            background: #c0c0c0;
-            border: inset 2px #888;
-            padding: 2px 8px;
-            margin-left: auto;
-            margin-right: 4px;
-            white-space: nowrap;
+        .discord-divider::before,
+        .discord-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 42%;
+            height: 1px;
+            background: #aaa;
         }
+        .discord-divider::before { left: 0; }
+        .discord-divider::after  { right: 0; }
 
-        /* ── Window interior — w95 card style ─────────────────────────────── */
-        fos-window .win-card {
-            background: #c0c0c0;
-            font-family: 'Windows 95', sans-serif;
-            height: 100%;
-            box-sizing: border-box;
-            padding: 8px;
-        }
-
-        fos-window .win-card .card-header {
-            background: #000181;
+        .btn-discord {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background: #5865F2;
             color: #fff;
-            font-size: 0.85rem;
-            padding: 4px 8px;
-            margin-bottom: 8px;
+            font-family: 'Windows 95', sans-serif;
+            font-size: 0.82rem;
+            padding: 6px 10px;
+            border: 2px solid #4752c4;
+            text-decoration: none;
+            cursor: pointer;
+            margin-bottom: 4px;
         }
-
-        fos-window .win-card .card-body {
-            background: #ffffff;
-            padding: 10px;
-            font-size: 0.85rem;
-        }
-
-        /* ── Desktop icons — w95 feel ─────────────────────────────────────── */
-        fos-icon {
-            background-color: transparent !important;
-            box-shadow: none !important;
-            color: #fff !important;
-            font-size: 40px !important;
-            font-family: 'Windows 95', sans-serif !important;
-            border-radius: 0 !important;
-            flex-direction: column !important;
-            width: 80px !important;
-            height: 80px !important;
+        .btn-discord:hover {
+            background: #4752c4;
+            color: #fff;
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
+<div class="fmxw-400">
 
-<!-- ===================== AUTH OVERLAY ===================== -->
-<div id="auth-overlay">
-    <div class="fmxw-400">
-
-        <!-- LOGIN PANEL -->
-        <div id="panel-login">
-            <div class="card card-tertiary w-100">
-                <div class="card-header text-center">
-                    <span>🖥️ Sign in</span>
-                </div>
-                <div class="card-body">
-                    <form id="form-login" autocomplete="off" class="mt-2">
-                        <div class="form-group">
-                            <label for="login-email" class="mb-2">Email</label>
-                            <input id="login-email" type="email" class="form-control" placeholder="Your email" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="login-password" class="mb-2">Password</label>
-                            <input id="login-password" type="password" class="form-control" placeholder="Your password" required />
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="form-check">
-                                <label class="form-check-label">
-                                    <input id="login-remember" class="form-check-input" type="checkbox">
-                                    <span class="form-check-x"></span>
-                                    <span class="form-check-sign"></span>
-                                    Remember me
-                                </label>
-                            </div>
-                        </div>
-                        <p class="auth-error" id="login-error">Incorrect email or password.</p>
-                        <button type="submit" class="btn btn-block btn-primary border-dark">
-                            <span class="btn-text">Login</span>
-                        </button>
-                    </form>
-                    <div class="d-flex justify-content-center mt-3">
-                        <p class="m-0">Not registered?
-                            <a href="#" id="go-register" class="font-weight-bold">Create account</a>
-                        </p>
+    <!-- LOGIN PANEL -->
+    <div id="panel-login">
+        <div class="card card-tertiary w-100">
+            <div class="card-header text-center">
+                <span>🖥️ Sign in</span>
+            </div>
+            <div class="card-body">
+                <form id="form-login" autocomplete="off" class="mt-2">
+                    <div class="form-group">
+                        <label for="login-email" class="mb-2">Email</label>
+                        <input id="login-email" type="email" class="form-control" placeholder="Your email" required />
                     </div>
+                    <div class="form-group">
+                        <label for="login-password" class="mb-2">Password</label>
+                        <input id="login-password" type="password" class="form-control" placeholder="Your password" required />
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input id="login-remember" class="form-check-input" type="checkbox">
+                                <span class="form-check-x"></span>
+                                <span class="form-check-sign"></span>
+                                Remember me
+                            </label>
+                        </div>
+                    </div>
+                    <p class="auth-error" id="login-error">Incorrect email or password.</p>
+                    <button type="submit" data-label="Login" class="btn btn-block btn-primary border-dark">
+                        <span class="btn-text">Login</span>
+                    </button>
+                </form>
+                <div class="d-flex justify-content-center mt-3">
+                    <p class="m-0">Not registered?
+                        <a href="#" id="go-register" class="font-weight-bold">Create account</a>
+                    </p>
                 </div>
+                <div class="discord-divider">or</div>
+                <a href="#" id="discord-login-btn" class="btn-discord" onclick="discordLogin(); return false;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 127.14 96.36" style="fill:#fff;vertical-align:middle;margin-right:6px;"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/></svg>
+                    Sign in with Discord
+                </a>
             </div>
         </div>
-
-        <!-- REGISTER PANEL -->
-        <div id="panel-register" style="display:none;">
-            <div class="card card-tertiary w-100">
-                <div class="card-header text-center">
-                    <span>🖥️ Create account</span>
-                </div>
-                <div class="card-body">
-                    <form id="form-register" autocomplete="off" class="mt-2">
-                        <div class="form-group">
-                            <label for="reg-username" class="mb-2">Username</label>
-                            <input id="reg-username" type="text" class="form-control" placeholder="Your username" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="reg-email" class="mb-2">Email</label>
-                            <input id="reg-email" type="email" class="form-control" placeholder="Your email" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="reg-password" class="mb-2">Password</label>
-                            <input id="reg-password" type="password" class="form-control" placeholder="Choose a password" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="reg-password2" class="mb-2">Confirm Password</label>
-                            <input id="reg-password2" type="password" class="form-control" placeholder="Repeat password" required />
-                        </div>
-                        <p class="auth-error" id="register-error">An error occurred.</p>
-                        <button type="submit" class="btn btn-block btn-primary border-dark">
-                            <span class="btn-text">Register</span>
-                        </button>
-                    </form>
-                    <div class="d-flex justify-content-center mt-3">
-                        <p class="m-0">Already have an account?
-                            <a href="#" id="go-login" class="font-weight-bold">Sign in</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
+
+    <!-- REGISTER PANEL -->
+    <div id="panel-register" style="display:none;">
+        <div class="card card-tertiary w-100">
+            <div class="card-header text-center">
+                <span>🖥️ Create account</span>
+            </div>
+            <div class="card-body">
+                <form id="form-register" autocomplete="off" class="mt-2">
+                    <div class="form-group">
+                        <label for="reg-username" class="mb-2">Username</label>
+                        <input id="reg-username" type="text" class="form-control" placeholder="Your username" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-email" class="mb-2">Email</label>
+                        <input id="reg-email" type="email" class="form-control" placeholder="Your email" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password" class="mb-2">Password</label>
+                        <input id="reg-password" type="password" class="form-control" placeholder="Choose a password" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password2" class="mb-2">Confirm Password</label>
+                        <input id="reg-password2" type="password" class="form-control" placeholder="Repeat password" required />
+                    </div>
+                    <p class="auth-error" id="register-error">An error occurred.</p>
+                    <button type="submit" data-label="Register" class="btn btn-block btn-primary border-dark">
+                        <span class="btn-text">Register</span>
+                    </button>
+                </form>
+                <div class="d-flex justify-content-center mt-3">
+                    <p class="m-0">Already have an account?
+                        <a href="#" id="go-login" class="font-weight-bold">Sign in</a>
+                    </p>
+                </div>
+                <div class="discord-divider">or</div>
+                <a href="#" class="btn-discord" onclick="discordLogin(); return false;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 127.14 96.36" style="fill:#fff;vertical-align:middle;margin-right:6px;"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/></svg>
+                    Register with Discord
+                </a>
+            </div>
+        </div>
+    </div>
+
 </div>
-<!-- =================== END AUTH OVERLAY =================== -->
-
-
-<!-- ===================== FOS DESKTOP ===================== -->
-<fos-desktop id="desktop-root">
-
-    <!-- Desktop icons -->
-    <fos-icon href="w1" name="Character" style="top:20px;left:20px;">💾</fos-icon>
-    <fos-icon href="w2" name="Map"       style="top:20px;left:140px;">🗺️</fos-icon>
-    <fos-icon href="w3" name="Inventory" style="top:160px;left:20px;">🎒</fos-icon>
-    <fos-icon href="w4" name="Browser"   style="top:160px;left:140px;">🌐</fos-icon>
-
-    <!-- Window 1 — Character -->
-    <fos-window name="w1" title="Character">
-        <div class="win-card">
-            <div class="card-header">Character Info</div>
-            <div class="card-body">
-                <h5>Test 1</h5>
-                <p>Congrats, your a New Type Harry.</p>
-                <div class="d-flex mt-3">
-                    <button class="btn btn-sm mr-2 btn-primary border-dark" type="button">
-                        <span class="btn-text">OK</span>
-                    </button>
-                    <button class="btn btn-sm btn-primary" type="button">
-                        <span class="btn-text">Cancel</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </fos-window>
-
-    <!-- Window 2 — Map -->
-    <fos-window name="w2" title="Locations / Map">
-        <div class="win-card">
-            <div class="card-header">Locations / Map</div>
-            <div class="card-body">
-                <h5>Hello</h5>
-                <p>welcome to the void, how do you like it?</p>
-                <p><a href="javascript:alert('hi');" class="font-weight-bold">Click here to say hi</a></p>
-                <div class="d-flex mt-3">
-                    <button class="btn btn-sm mr-2 btn-primary border-dark" type="button">
-                        <span class="btn-text">OK</span>
-                    </button>
-                    <button class="btn btn-sm btn-primary" type="button">
-                        <span class="btn-text">Cancel</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </fos-window>
-
-    <!-- Window 3 — Inventory (with fos panels) -->
-    <fos-window name="w3" title="Inventory">
-        <fos-bar position="top">
-            <fos-menu name="File">
-                <fos-menu-item href="file1">Mobile Suit</fos-menu-item>
-                <fos-menu-item href="file2">Armour</fos-menu-item>
-                <fos-menu-item href="file1">Weapons</fos-menu-item>
-            </fos-menu>
-        </fos-bar>
-        <fos-panel name="file1" selected>
-            <div class="win-card">
-                <div class="card-header">Mobile Suit</div>
-                <div class="card-body">
-                    <p>Your active Mobile Suit is show here.</p>
-                    <p>Go Buy One</p>
-                </div>
-            </div>
-        </fos-panel>
-        <fos-panel name="file2">
-            <div class="win-card">
-                <div class="card-header">Weapons</div>
-                <div class="card-body">
-                    <p>Your weapons is listed here.</p>
-                </div>
-            </div>
-        </fos-panel>
-        <fos-panel name="file3">
-            <div class="win-card">
-                <div class="card-header">Armour</div>
-                <div class="card-body">
-                    <p>Your armour is listed here.</p>
-                </div>
-            </div>
-        </fos-panel>
-    </fos-window>
-
-    <!-- Window 4 — Browser -->
-    <fos-window name="w4" title="Browser">
-        <iframe src="http://example.com" style="width:100%;height:100%;border:none;display:block;"></iframe>
-    </fos-window>
-
-    <!-- Window 5 — Account Info -->
-    <fos-window name="w-account" title="Account Info">
-        <div class="win-card">
-            <div class="card-header">👤 Account Info</div>
-            <div class="card-body">
-                <table style="width:100%;font-family:'Windows 95',sans-serif;font-size:0.85rem;border-collapse:collapse;">
-                    <tr>
-                        <td style="padding:4px 8px 4px 0;font-weight:bold;white-space:nowrap;">Username:</td>
-                        <td id="acct-username" style="padding:4px 0;"></td>
-                    </tr>
-                    <tr>
-                        <td style="padding:4px 8px 4px 0;font-weight:bold;white-space:nowrap;">Email:</td>
-                        <td id="acct-email" style="padding:4px 0;"></td>
-                    </tr>
-                    <tr>
-                        <td style="padding:4px 8px 4px 0;font-weight:bold;white-space:nowrap;">Member since:</td>
-                        <td id="acct-since" style="padding:4px 0;"></td>
-                    </tr>
-                </table>
-                <div class="d-flex mt-3">
-                    <button class="btn btn-sm btn-primary border-dark" type="button"
-                            onclick="document.querySelector('fos-window[name=w-account]').close()">
-                        <span class="btn-text">OK</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </fos-window>
-
-    <!-- Taskbar -->
-    <fos-bar>
-        <!-- Start button acting as System Menu -->
-        <fos-menu name="System Menu">
-            <fos-menu-item href="w1">💾 Character</fos-menu-item>
-            <fos-menu-item href="w2">🗺️ Locations/Map</fos-menu-item>
-            <fos-menu-item href="w3">🎒 Inventory</fos-menu-item>
-            <fos-menu-item href="w4">🌐 Browser</fos-menu-item>
-            <fos-menu-item href="#">──────────</fos-menu-item>
-            <fos-menu-item href="w-account" id="menu-username">👤</fos-menu-item>
-            <fos-menu-item href="#" onclick="authLogout(); return false;" id="menu-logout" style="display:none;">🚪 Log out</fos-menu-item>
-        </fos-menu>
-
-        <!-- Clock pushed to the right -->
-        <div id="taskbar-clock">12:00 PM</div>
-    </fos-bar>
-
-</fos-desktop>
-<!-- =================== END FOS DESKTOP =================== -->
-
 
 <!-- Bootstrap JS -->
 <script src="node_modules/popper.js/dist/umd/popper.min.js"></script>
 <script src="node_modules/jquery/dist/jquery.min.js"></script>
 <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
-<!-- Win95 JS -->
-<script src="js/w95.js"></script>
 
 <script>
 (function () {
 
-    // ── Clock ─────────────────────────────────────────────────────────────────
-    function updateClock() {
-        var now = new Date();
-        var h = now.getHours(), m = now.getMinutes();
-        var ampm = h >= 12 ? 'PM' : 'AM';
-        h = h % 12 || 12;
-        m = m < 10 ? '0' + m : m;
-        var el = document.getElementById('taskbar-clock');
-        if (el) el.textContent = h + ':' + m + ' ' + ampm;
-    }
-    updateClock();
-    setInterval(updateClock, 10000);
+    var API = '';  // same origin — server serves these files at localhost:3000
 
-    // ── Auth helpers ──────────────────────────────────────────────────────────
-    function getUsers() {
-        return JSON.parse(localStorage.getItem('fos_users') || '{}');
-    }
-    function saveUsers(users) {
-        localStorage.setItem('fos_users', JSON.stringify(users));
-    }
-    function setSession(email, username, remember) {
-        var store = remember ? localStorage : sessionStorage;
-        store.setItem('fos_session', JSON.stringify({ email: email, username: username }));
-    }
-    function getSession() {
-        var ls = localStorage.getItem('fos_session');
-        var ss = sessionStorage.getItem('fos_session');
-        return ls ? JSON.parse(ls) : ss ? JSON.parse(ss) : null;
-    }
-    function clearSession() {
-        localStorage.removeItem('fos_session');
-        sessionStorage.removeItem('fos_session');
-    }
     function showError(id, msg) {
         var el = document.getElementById(id);
         el.textContent = msg;
@@ -373,39 +181,18 @@
     function hideError(id) {
         document.getElementById(id).style.display = 'none';
     }
-
-    // ── Enter desktop ─────────────────────────────────────────────────────────
-    function enterDesktop(username) {
-        document.getElementById('auth-overlay').style.display = 'none';
-        document.getElementById('desktop-root').style.display = 'block';
-
-        var nameEl = document.getElementById('menu-username');
-        if (nameEl) nameEl.textContent = '👤 ' + username;
-
-        var logoutItem = document.getElementById('menu-logout');
-        if (logoutItem) logoutItem.style.display = 'block';
-
-        // Populate account info window
-        var session = getSession();
-        var acctUsername = document.getElementById('acct-username');
-        var acctEmail    = document.getElementById('acct-email');
-        var acctSince    = document.getElementById('acct-since');
-        if (acctUsername) acctUsername.textContent = username;
-        if (acctEmail && session)    acctEmail.textContent = session.email;
-        if (acctSince && session) {
-            var users = getUsers();
-            var user  = users[session.email];
-            acctSince.textContent = user && user.created
-                ? new Date(user.created).toLocaleDateString()
-                : new Date().toLocaleDateString();
-        }
+    function setLoading(btn, loading) {
+        btn.disabled = loading;
+        btn.querySelector('.btn-text').textContent = loading ? 'Please wait...' : btn.dataset.label;
     }
 
-    // ── Logout ────────────────────────────────────────────────────────────────
-    window.authLogout = function () {
-        clearSession();
-        location.reload();
-    };
+    // ── Already logged in — check server session ──────────────────────────────
+    fetch(API + '/api/auth/session', { credentials: 'include' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (user) {
+            if (user) window.location.replace('desktop.html');
+        })
+        .catch(function () { /* server offline — stay on login page */ });
 
     // ── Panel switching ───────────────────────────────────────────────────────
     document.getElementById('go-register').addEventListener('click', function (e) {
@@ -425,53 +212,72 @@
     document.getElementById('form-login').addEventListener('submit', function (e) {
         e.preventDefault();
         hideError('login-error');
+        var btn      = this.querySelector('button[type=submit]');
         var email    = document.getElementById('login-email').value.trim().toLowerCase();
         var password = document.getElementById('login-password').value;
-        var remember = document.getElementById('login-remember').checked;
-        var users    = getUsers();
-        if (!users[email] || users[email].password !== password) {
-            showError('login-error', 'Incorrect email or password.');
-            return;
-        }
-        setSession(email, users[email].username, remember);
-        enterDesktop(users[email].username);
+
+        setLoading(btn, true);
+        fetch(API + '/api/auth/login', {
+            method:      'POST',
+            credentials: 'include',
+            headers:     { 'Content-Type': 'application/json' },
+            body:        JSON.stringify({ email: email, password: password })
+        })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+        .then(function (res) {
+            if (!res.ok) { showError('login-error', res.data.error || 'Login failed.'); return; }
+            window.location.replace('desktop.html');
+        })
+        .catch(function () { showError('login-error', 'Could not reach the server. Is it running?'); })
+        .finally(function () { setLoading(btn, false); });
     });
 
     // ── Register ──────────────────────────────────────────────────────────────
     document.getElementById('form-register').addEventListener('submit', function (e) {
         e.preventDefault();
         hideError('register-error');
+        var btn       = this.querySelector('button[type=submit]');
         var username  = document.getElementById('reg-username').value.trim();
         var email     = document.getElementById('reg-email').value.trim().toLowerCase();
         var password  = document.getElementById('reg-password').value;
         var password2 = document.getElementById('reg-password2').value;
-        var users     = getUsers();
-        if (password !== password2) {
-            showError('register-error', 'Passwords do not match.');
-            return;
-        }
-        if (password.length < 6) {
-            showError('register-error', 'Password must be at least 6 characters.');
-            return;
-        }
-        if (users[email]) {
-            showError('register-error', 'An account with that email already exists.');
-            return;
-        }
-        users[email] = { username: username, password: password, created: Date.now() };
-        saveUsers(users);
-        setSession(email, username, false);
-        enterDesktop(username);
+
+        if (password !== password2) { showError('register-error', 'Passwords do not match.'); return; }
+
+        setLoading(btn, true);
+        fetch(API + '/api/auth/register', {
+            method:      'POST',
+            credentials: 'include',
+            headers:     { 'Content-Type': 'application/json' },
+            body:        JSON.stringify({ username: username, email: email, password: password })
+        })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+        .then(function (res) {
+            if (!res.ok) { showError('register-error', res.data.error || 'Registration failed.'); return; }
+            window.location.replace('desktop.html');
+        })
+        .catch(function () { showError('register-error', 'Could not reach the server. Is it running?'); })
+        .finally(function () { setLoading(btn, false); });
     });
 
-    // ── Auto-login ────────────────────────────────────────────────────────────
-    var session = getSession();
-    if (session) {
-        enterDesktop(session.username);
-    }
+    // ── Discord OAuth2 stub ───────────────────────────────────────────────────
+    var DISCORD_CLIENT_ID = 'YOUR_CLIENT_ID_HERE';
+    var DISCORD_REDIRECT  = window.location.origin + '/auth/discord/callback';
+
+    window.discordLogin = function () {
+        if (DISCORD_CLIENT_ID === 'YOUR_CLIENT_ID_HERE') {
+            alert('Discord login is not yet configured.\nSee discordsetup.html for setup instructions.');
+            return;
+        }
+        var url = 'https://discord.com/api/oauth2/authorize'
+            + '?client_id=' + DISCORD_CLIENT_ID
+            + '&redirect_uri=' + encodeURIComponent(DISCORD_REDIRECT)
+            + '&response_type=code'
+            + '&scope=identify%20email';
+        window.location.href = url;
+    };
 
 })();
 </script>
-
 </body>
 </html>

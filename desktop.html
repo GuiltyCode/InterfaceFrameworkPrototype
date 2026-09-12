@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- Bootstrap CSS -->
+    <link type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <!-- Win95 styles -->
+    <link type="text/css" rel="stylesheet" href="css/w95.css">
+    <!-- FOS desktop styles -->
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <script src="js/fos.min.js"></script>
+    <style>
+        /* ── Taskbar ──────────────────────────────────────────────────────── */
+        fos-bar {
+            background-color: #c0c0c0 !important;
+            border-top: 2px solid #ffffff;
+            box-shadow: none !important;
+            height: 40px !important;
+            padding: 0 4px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        #taskbar-clock {
+            font-family: 'Windows 95', sans-serif;
+            font-size: 0.8rem;
+            background: #c0c0c0;
+            border: inset 2px #888;
+            padding: 2px 8px;
+            margin-left: auto;
+            margin-right: 4px;
+            white-space: nowrap;
+        }
+
+        /* ── Window borders — Win95 raised 3D effect ──────────────────────── */
+        fos-window {
+            border: none !important;
+            outline: 2px solid #08080E;
+            outline-offset: 0;
+            box-shadow:
+                -2px -2px 0 0 #FCFCFC,
+                2px  2px  0 0 #08080E,
+                -1px -1px 0 1px #c0c0c0,
+                1px  1px  0 1px #888888
+                !important;
+        }
+
+        /* ── win-card used by non-iframe windows ──────────────────────────── */
+        fos-window .win-card {
+            background: #c0c0c0;
+            font-family: 'Windows 95', sans-serif;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 8px;
+        }
+        fos-window .win-card .card-header {
+            background: #000181;
+            color: #fff;
+            font-size: 0.85rem;
+            padding: 4px 8px;
+            margin-bottom: 8px;
+        }
+        fos-window .win-card .card-body {
+            background: #ffffff;
+            padding: 10px;
+            font-size: 0.85rem;
+        }
+
+        /* ── MS Store window size ─────────────────────────────────────────── */
+        /* Initial size set via inline style on the element; no CSS lock so it stays resizable */
+
+        /* ── MS stat classes (used in Inventory panel) ────────────────────── */
+        .ms-stat-row {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 4px; margin: 4px 0;
+        }
+        .ms-stat {
+            background: #fff; border: 1px inset #888;
+            text-align: center; padding: 2px;
+            font-family: 'Windows 95', sans-serif;
+        }
+        .ms-stat .lbl { font-size: 0.6rem; color: #444; }
+        .ms-stat .val { font-size: 0.85rem; font-weight: bold; }
+        .ms-tag {
+            display: inline-block; background: #000181; color: #fff;
+            padding: 1px 5px; margin: 1px; font-size: 0.65rem;
+        }
+
+        /* ── Desktop icons ────────────────────────────────────────────────── */
+        fos-icon {
+            background-color: transparent !important;
+            box-shadow: none !important;
+            color: #fff !important;
+            font-size: 40px !important;
+            font-family: 'Windows 95', sans-serif !important;
+            border-radius: 0 !important;
+            flex-direction: column !important;
+            width: 80px !important;
+            height: 80px !important;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===================== FOS DESKTOP ===================== -->
+<fos-desktop id="desktop-root">
+
+    <!-- Desktop icons -->
+    <fos-icon href="w1" name="Character" style="top:20px;left:20px;">💾</fos-icon>
+    <fos-icon href="w2" name="Map"       style="top:20px;left:140px;">🗺️</fos-icon>
+    <fos-icon href="w3" name="Inventory" style="top:160px;left:20px;">🎒</fos-icon>
+    <fos-icon href="w4" name="Browser"   style="top:160px;left:140px;">🌐</fos-icon>
+    <fos-icon href="w5" name="MS Store"  style="top:20px;left:260px;">🤖</fos-icon>
+
+    <!-- Window 1 — Character (iframe) -->
+    <fos-window name="w1" title="Character">
+        <iframe id="char-iframe" src="character.html"
+                style="width:100%;height:100%;border:none;display:block;background:#c0c0c0;"></iframe>
+    </fos-window>
+
+    <!-- Window 2 — Map -->
+    <fos-window name="w2" title="Locations / Map">
+        <div class="win-card">
+            <div class="card-header">Locations / Map</div>
+            <div class="card-body">
+                <h5>Hello</h5>
+                <p>Welcome to the void, how do you like it?</p>
+                <p><a href="javascript:alert('hi');" class="font-weight-bold">Click here to say hi</a></p>
+                <div class="d-flex mt-3">
+                    <button class="btn btn-sm mr-2 btn-primary border-dark" type="button">
+                        <span class="btn-text">OK</span>
+                    </button>
+                    <button class="btn btn-sm btn-primary" type="button">
+                        <span class="btn-text">Cancel</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </fos-window>
+
+    <!-- Window 3 — Inventory -->
+    <fos-window name="w3" title="Inventory">
+        <fos-bar position="top">
+            <fos-menu name="File">
+                <fos-menu-item href="file1">Mobile Suit</fos-menu-item>
+                <fos-menu-item href="file2">Armour</fos-menu-item>
+                <fos-menu-item href="file3">Weapons</fos-menu-item>
+            </fos-menu>
+        </fos-bar>
+        <fos-panel name="file1" selected>
+            <div class="win-card" style="height:100%;display:flex;flex-direction:column;overflow:hidden;">
+                <div class="card-header" style="flex-shrink:0;">🤖 Active Mobile Suit</div>
+                <div class="card-body" id="inv-ms-body" style="flex:1 1 auto;overflow-y:auto;padding:8px;background:#c0c0c0;">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </fos-panel>
+        <fos-panel name="file2">
+            <div class="win-card">
+                <div class="card-header">Armour</div>
+                <div class="card-body">
+                    <p>Your armour is listed here.</p>
+                </div>
+            </div>
+        </fos-panel>
+        <fos-panel name="file3">
+            <div class="win-card">
+                <div class="card-header">Weapons</div>
+                <div class="card-body">
+                    <p>Your weapons are listed here.</p>
+                </div>
+            </div>
+        </fos-panel>
+    </fos-window>
+
+    <!-- Window 4 — Browser -->
+    <fos-window name="w4" title="Browser">
+        <iframe src="http://example.com" style="width:100%;height:100%;border:none;display:block;"></iframe>
+    </fos-window>
+
+    <!-- Window 5 — MS Store (iframe) -->
+    <fos-window name="w5" title="Mobile Suit Requisition" style="width:520px;height:500px;">
+        <iframe id="ms-iframe" src="msstore.html"
+                style="width:100%;height:100%;border:none;display:block;background:#c0c0c0;"></iframe>
+    </fos-window>
+
+    <!-- Account Info window -->
+    <fos-window name="w-account" title="Account Info">
+        <div class="win-card">
+            <div class="card-header">👤 Account Info</div>
+            <div class="card-body">
+                <table style="width:100%;font-family:'Windows 95',sans-serif;font-size:0.85rem;border-collapse:collapse;">
+                    <tr>
+                        <td style="padding:4px 8px 4px 0;font-weight:bold;white-space:nowrap;">Username:</td>
+                        <td id="acct-username" style="padding:4px 0;"></td>
+                    </tr>
+                    <tr>
+                        <td style="padding:4px 8px 4px 0;font-weight:bold;white-space:nowrap;">Email:</td>
+                        <td id="acct-email" style="padding:4px 0;"></td>
+                    </tr>
+                    <tr>
+                        <td style="padding:4px 8px 4px 0;font-weight:bold;white-space:nowrap;">Member since:</td>
+                        <td id="acct-since" style="padding:4px 0;"></td>
+                    </tr>
+                </table>
+                <div class="d-flex mt-3">
+                    <button class="btn btn-sm btn-primary border-dark" type="button"
+                            onclick="document.querySelector('fos-window[name=w-account]').close()">
+                        <span class="btn-text">OK</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </fos-window>
+
+    <!-- Taskbar -->
+    <fos-bar>
+        <fos-menu name="System Menu">
+            <fos-menu-item href="w1">💾 Character</fos-menu-item>
+            <fos-menu-item href="w2">🗺️ Locations/Map</fos-menu-item>
+            <fos-menu-item href="w3">🎒 Inventory</fos-menu-item>
+            <fos-menu-item href="w4">🌐 Browser</fos-menu-item>
+            <fos-menu-item href="w5">🤖 MS Store</fos-menu-item>
+            <fos-menu-item href="#">──────────</fos-menu-item>
+            <fos-menu-item href="w-account" id="menu-username">👤</fos-menu-item>
+            <fos-menu-item href="#" onclick="authLogout(); return false;" id="menu-logout" style="display:none;">🚪 Log out</fos-menu-item>
+        </fos-menu>
+        <div id="taskbar-clock">12:00 PM</div>
+    </fos-bar>
+
+</fos-desktop>
+<!-- =================== END FOS DESKTOP =================== -->
+
+
+<!-- Bootstrap JS -->
+<script src="node_modules/popper.js/dist/umd/popper.min.js"></script>
+<script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- Win95 JS -->
+<script src="js/w95.js"></script>
+
+<script>
+(function () {
+
+    // ── Clock ─────────────────────────────────────────────────────────────────
+    function updateClock() {
+        var now = new Date();
+        var h = now.getHours(), m = now.getMinutes();
+        var ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        m = m < 10 ? '0' + m : m;
+        var el = document.getElementById('taskbar-clock');
+        if (el) el.textContent = h + ':' + m + ' ' + ampm;
+    }
+    updateClock();
+    setInterval(updateClock, 10000);
+
+    function getUsers() {
+        return JSON.parse(localStorage.getItem('fos_users') || '{}');
+    }
+    function saveChar(email, ch) {
+        var chars = JSON.parse(localStorage.getItem('fos_characters') || '{}');
+        chars[email] = ch;
+        localStorage.setItem('fos_characters', JSON.stringify(chars));
+    }
+    function getChar(email) {
+        var chars = JSON.parse(localStorage.getItem('fos_characters') || '{}');
+        return chars[email] || null;
+    }    var API = '';  // same origin
+
+    function callCharIframe(fn) {
+        var frame = document.getElementById('char-iframe');
+        if (!frame) return;
+        if (frame.contentWindow && typeof frame.contentWindow[fn] === 'function') {
+            frame.contentWindow[fn]();
+        } else {
+            // Iframe not loaded yet — wait for it
+            frame.addEventListener('load', function () {
+                if (typeof frame.contentWindow[fn] === 'function') {
+                    frame.contentWindow[fn]();
+                }
+            }, { once: true });
+        }
+    }
+
+    // ── MS Store → parent callback ───────────────────────────────────────────
+    window.onMSEquipped = function (suitName) {
+        renderInvMS();
+        callCharIframe('refreshChar');
+    };
+
+    // ── Inventory — Active Mobile Suit panel ──────────────────────────────────
+    // MS_DATA is duplicated here only for the inventory display.
+    // The full list lives in msstore.html.
+    var MS_DATA_MAP = (function () {
+        var list = [
+            { id:'ms06f',      name:'MS-06F Zaku II',               img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg',               ap:65,  threshold:10, evasion:10, armorDie:'1d6',  str:14, dex:10, con:14, speed:{land:50,air:0,zeroG:50,amph:0},   immune:['Psychic','Poison'], resistant:['Ballistic'],         fixed:'120mm Machine Gun, Heat Hawk',                                                            upgradeSlots:3, rarity:'Common',    faction:'Principality of Zeon', size:'Medium', tags:['General MS'],                   notes:"The backbone of Zeon's forces." },
+            { id:'ms06s',      name:'MS-06S Zaku II Commander Type', img:'https://static.wikia.nocookie.net/gundam/images/1/1c/MS-06S_Zaku_II_Commander_Type.jpg', ap:70,  threshold:10, evasion:12, armorDie:'1d6',  str:14, dex:12, con:14, speed:{land:60,air:0,zeroG:60,amph:0},   immune:['Psychic','Poison'], resistant:['Ballistic'],         fixed:'120mm Machine Gun, Heat Hawk',                                                            upgradeSlots:3, rarity:'Uncommon',  faction:'Principality of Zeon', size:'Medium', tags:['General MS'],                   notes:"Char's personal unit. +1 to pilot attack rolls." },
+            { id:'ms05b',      name:'MS-05B Zaku I',                 img:'https://static.wikia.nocookie.net/gundam/images/6/6e/MS-05B_Zaku_I.jpg',                 ap:60,  threshold:8,  evasion:9,  armorDie:'1d6',  str:12, dex:10, con:12, speed:{land:40,air:0,zeroG:40,amph:0},   immune:['Psychic','Poison'], resistant:[],                    fixed:'120mm Machine Gun, Spike Shield',                                                         upgradeSlots:2, rarity:'Common',    faction:'Principality of Zeon', size:'Medium', tags:['General MS'],                   notes:'Predecessor to the Zaku II.' },
+            { id:'rx78',       name:'RX-78-2 Gundam',                img:'https://static.wikia.nocookie.net/gundam/images/4/4f/RX-78-2_Gundam.jpg',                ap:90,  threshold:15, evasion:14, armorDie:'1d8',  str:16, dex:14, con:16, speed:{land:60,air:70,zeroG:70,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'], fixed:'Beam Rifle (3d8), Beam Saber (2d8), Hyper Bazooka, Shield',                              upgradeSlots:4, rarity:'Very Rare', faction:'Earth Federation',      size:'Medium', tags:['General MS','Gundam MS'],       notes:'The legendary prototype.' },
+            { id:'gm',         name:'RGM-79 GM',                     img:'https://static.wikia.nocookie.net/gundam/images/1/15/RGM-79_GM.jpg',                     ap:65,  threshold:10, evasion:11, armorDie:'1d6',  str:12, dex:10, con:12, speed:{land:50,air:60,zeroG:60,amph:0},  immune:['Psychic','Poison'], resistant:[],                    fixed:'Beam Spray Gun (2d6), Beam Saber (1d8), Shield',                                          upgradeSlots:3, rarity:'Common',    faction:'Earth Federation',      size:'Medium', tags:['General MS'],                   notes:'Mass production Federation workhorse.' },
+            { id:'gouf',       name:'MS-07B Gouf',                   img:'https://static.wikia.nocookie.net/gundam/images/7/79/MS-07B_Gouf.jpg',                   ap:72,  threshold:10, evasion:12, armorDie:'1d6',  str:14, dex:12, con:14, speed:{land:60,air:0,zeroG:50,amph:0},   immune:['Psychic','Poison'], resistant:['Ballistic'],         fixed:'Heat Rod (1d10 lightning), 75mm Finger Vulcan, Heat Sword (2d6)',                          upgradeSlots:3, rarity:'Uncommon',  faction:'Principality of Zeon', size:'Medium', tags:['General MS'],                   notes:'Land-combat specialist.' },
+            { id:'dom',        name:'MS-09B Dom',                    img:'https://static.wikia.nocookie.net/gundam/images/6/68/MS-09_Dom.jpg',                    ap:80,  threshold:12, evasion:11, armorDie:'1d8',  str:16, dex:10, con:16, speed:{land:80,air:0,zeroG:50,amph:0},   immune:['Psychic','Poison'], resistant:['Ballistic'],         fixed:'Scattering Beam Gun (2d6), Giant Bazooka (3d8), Heat Saber (2d6)',                         upgradeSlots:3, rarity:'Uncommon',  faction:'Principality of Zeon', size:'Medium', tags:['General MS'],                   notes:'Ground-hover unit.' },
+            { id:'gelgoog',    name:'MS-14A Gelgoog',                img:'https://static.wikia.nocookie.net/gundam/images/6/6e/MS-14A_Gelgoog.jpg',                ap:80,  threshold:12, evasion:13, armorDie:'1d8',  str:14, dex:12, con:14, speed:{land:50,air:0,zeroG:70,amph:0},   immune:['Psychic','Poison'], resistant:['Ballistic','Energy'], fixed:'Beam Rifle (2d8), Beam Naginata (2d8 reach), Shield',                                     upgradeSlots:4, rarity:'Rare',      faction:'Principality of Zeon', size:'Medium', tags:['General MS'],                   notes:'Late-war Zeon suit.' },
+            { id:'psycogundam',name:'MRX-009 Psyco Gundam',          img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MRX-009_Psyco_Gundam.jpg',          ap:160, threshold:20, evasion:10, armorDie:'1d10', str:22, dex:8,  con:22, speed:{land:30,air:50,zeroG:50,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy','Piercing'], fixed:'Mega Beam Gun (4d10), Diffuse Beam Cannon (3d8), Reflector Bits', upgradeSlots:3, rarity:'Very Rare', faction:'Titans/AEUG',           size:'Huge',   tags:['General MS','Psycommu MS'],     notes:'Massive mobile fortress.' },
+            { id:'zgok',       name:"MSM-07 Z'Gok",                  img:"https://static.wikia.nocookie.net/gundam/images/4/44/MSM-07_Z%27Gok.jpg",                ap:75,  threshold:10, evasion:11, armorDie:'1d6',  str:16, dex:10, con:16, speed:{land:40,air:0,zeroG:40,amph:70},  immune:['Psychic','Poison'], resistant:['Ballistic'],         fixed:'Mega Particle Cannon x2 (2d8), Iron Nail Claw (2d6)',                                     upgradeSlots:3, rarity:'Uncommon',  faction:'Principality of Zeon', size:'Medium', tags:['General MS','Amphibious MS'],   notes:'Amphibious assault unit.' },
+            { id:'rick_dom',   name:'MS-09R Rick Dom',               img:'https://static.wikia.nocookie.net/gundam/images/d/d4/MS-09R_Rick_Dom.jpg',               ap:78,  threshold:12, evasion:12, armorDie:'1d8',  str:16, dex:10, con:16, speed:{land:40,air:0,zeroG:80,amph:0},   immune:['Psychic','Poison'], resistant:['Ballistic'],         fixed:'Giant Bazooka (3d8), Scattering Beam Gun (2d6), Heat Saber (2d6)',                         upgradeSlots:3, rarity:'Uncommon',  faction:'Principality of Zeon', size:'Medium', tags:['General MS'],                   notes:'Space-optimized Dom variant.' },
+            { id:'guncannon',  name:'RX-77-2 Guncannon',             img:'https://static.wikia.nocookie.net/gundam/images/a/a4/RX-77-2_Guncannon.jpg',             ap:85,  threshold:14, evasion:11, armorDie:'1d8',  str:14, dex:10, con:16, speed:{land:40,air:50,zeroG:50,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],         fixed:'180mm Cannon x2 (3d8), Vulcan Gun, Beam Saber (1d8)',                                     upgradeSlots:3, rarity:'Rare',      faction:'Earth Federation',      size:'Medium', tags:['General MS','Gundam MS'],       notes:'Mid-range fire support.' },
+            { id:'guntank',    name:'RX-75-4 Guntank',               img:'https://static.wikia.nocookie.net/gundam/images/4/49/RX-75-4_Guntank.jpg',               ap:100, threshold:16, evasion:8,  armorDie:'1d10', str:18, dex:6,  con:20, speed:{land:30,air:0,zeroG:20,amph:0},   immune:['Psychic','Poison'], resistant:['Ballistic','Piercing'], fixed:'120mm Cannon x2 (3d10), Hovering Missiles (2d8, 5 targets)',                            upgradeSlots:2, rarity:'Rare',      faction:'Earth Federation',      size:'Large',  tags:['General MS','Gundam MS'],       notes:'Heavy artillery unit.' },
+            { id:'acguy',      name:'MSM-04 Acguy',                  img:'https://static.wikia.nocookie.net/gundam/images/8/8c/MSM-04_Acguy.jpg',                  ap:65,  threshold:10, evasion:12, armorDie:'1d6',  str:14, dex:12, con:14, speed:{land:50,air:0,zeroG:40,amph:60},  immune:['Psychic','Poison'], resistant:[],                    fixed:'Torpedo Launcher (2d8), Claw Arms (1d8), Vulcan Gun',                                     upgradeSlots:3, rarity:'Common',    faction:'Principality of Zeon', size:'Medium', tags:['General MS','Amphibious MS'],   notes:'Amphibious infiltration unit.' }
+        ];
+        var map = {};
+        list.forEach(function (s) { map[s.name] = s; });
+        return map;
+    })();
+
+    function renderInvMS() {
+        var body = document.getElementById('inv-ms-body');
+        if (!body) return;
+
+        // Fetch active suit name from the API
+        fetch(API + '/api/character', { credentials: 'include' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (ch) { renderInvMSFromData(ch ? ch.mobileSuit : null); })
+            .catch(function () { renderInvMSFromData(null); });
+    }
+
+    function renderInvMSFromData(suitName) {
+        var body = document.getElementById('inv-ms-body');
+        if (!body) return;
+        var suit = suitName ? MS_DATA_MAP[suitName] : null;
+
+        if (!suit) {
+            body.innerHTML = '<div style="font-family:\'Windows 95\',sans-serif;font-size:0.82rem;padding:8px;">'
+                + '<p>No active Mobile Suit equipped.</p>'
+                + '<p style="color:#666;font-size:0.75rem;">Visit the 🤖 MS Store to requisition a suit.</p>'
+                + '</div>';
+            return;
+        }
+
+        var rarityColor = { Common:'#444', Uncommon:'#006400', Rare:'#00008B', 'Very Rare':'#8B008B' };
+        var html = '<div style="font-family:\'Windows 95\',sans-serif;font-size:0.78rem;">';
+
+        html += '<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;">';
+        html += '<img src="' + suit.img + '" alt="' + suit.name + '" '
+              + 'style="width:120px;height:120px;object-fit:contain;border:2px inset #888;background:#fff;flex-shrink:0;" '
+              + 'onerror="this.style.display=\'none\'">';
+        html += '<div style="flex:1;">';
+        html += '<strong style="font-size:0.9rem;">' + suit.name + '</strong><br>';
+        html += '<span style="color:' + rarityColor[suit.rarity] + ';">' + suit.rarity + '</span>';
+        html += ' &nbsp;|&nbsp; ' + suit.faction + '<br>';
+        suit.tags.forEach(function (t) { html += '<span class="ms-tag">' + t + '</span>'; });
+        html += '<br><span style="font-size:0.7rem;">Size: ' + suit.size
+              + ' &nbsp;|&nbsp; Slots: ' + suit.upgradeSlots + '</span>';
+        html += '</div></div>';
+
+        html += '<div class="ms-stat-row">';
+        html += '<div class="ms-stat"><div class="lbl">Armor Points</div><div class="val">' + suit.ap + ' (T' + suit.threshold + ')</div></div>';
+        html += '<div class="ms-stat"><div class="lbl">Base Evasion</div><div class="val">' + suit.evasion + '</div></div>';
+        html += '<div class="ms-stat"><div class="lbl">Armor Die</div><div class="val">' + suit.armorDie + '</div></div>';
+        html += '</div>';
+
+        html += '<div class="ms-stat-row">';
+        html += '<div class="ms-stat"><div class="lbl">STR</div><div class="val">' + suit.str + '</div></div>';
+        html += '<div class="ms-stat"><div class="lbl">DEX</div><div class="val">' + suit.dex + '</div></div>';
+        html += '<div class="ms-stat"><div class="lbl">CON</div><div class="val">' + suit.con + '</div></div>';
+        html += '</div>';
+
+        html += '<div class="ms-stat-row" style="grid-template-columns:repeat(4,1fr);">';
+        html += '<div class="ms-stat"><div class="lbl">Land</div><div class="val">' + suit.speed.land + 'm</div></div>';
+        html += '<div class="ms-stat"><div class="lbl">Mid-Air</div><div class="val">' + (suit.speed.air || '—') + (suit.speed.air ? 'm' : '') + '</div></div>';
+        html += '<div class="ms-stat"><div class="lbl">Zero-G</div><div class="val">' + suit.speed.zeroG + 'm</div></div>';
+        html += '<div class="ms-stat"><div class="lbl">Amph.</div><div class="val">' + (suit.speed.amph || '—') + (suit.speed.amph ? 'm' : '') + '</div></div>';
+        html += '</div>';
+
+        var defParts = [];
+        if (suit.immune.length)    defParts.push('Immune: ' + suit.immune.join(', '));
+        if (suit.resistant.length) defParts.push('Resistant: ' + suit.resistant.join(', '));
+        if (defParts.length) {
+            html += '<p style="margin:4px 0;font-size:0.72rem;"><strong>Defenses:</strong> ' + defParts.join('; ') + '</p>';
+        }
+        html += '<p style="margin:4px 0;font-size:0.72rem;"><strong>Fixed Equipment:</strong> ' + suit.fixed + '</p>';
+        if (suit.notes) {
+            html += '<p style="margin:4px 0;font-size:0.7rem;color:#333;font-style:italic;">' + suit.notes + '</p>';
+        }
+
+        html += '<button class="btn btn-sm btn-primary border-dark" style="margin-top:6px;" onclick="msUnequip()">';
+        html += '<span class="btn-text">❌ Unequip Suit</span></button>';
+        html += '</div>';
+        body.innerHTML = html;
+    }
+
+    window.msUnequip = function () {
+        fetch(API + '/api/character/equip', {
+            method:      'POST',
+            credentials: 'include',
+            headers:     { 'Content-Type': 'application/json' },
+            body:        JSON.stringify({ mobileSuit: null })
+        })
+        .then(function () {
+            renderInvMS();
+            callCharIframe('refreshChar');
+        });
+    };
+
+    // ── Session guard — check with server, redirect if not logged in ──────────
+    window.authLogout = function () {
+        fetch(API + '/api/auth/logout', { method: 'POST', credentials: 'include' })
+            .finally(function () { window.location.replace('index.html'); });
+    };
+
+    // ── Init desktop ──────────────────────────────────────────────────────────
+    fetch(API + '/api/auth/session', { credentials: 'include' })
+        .then(function (r) {
+            if (!r.ok) { window.location.replace('index.html'); return null; }
+            return r.json();
+        })
+        .then(function (user) {
+            if (!user) return;
+
+            var nameEl = document.getElementById('menu-username');
+            if (nameEl) nameEl.textContent = '👤 ' + user.username;
+
+            var logoutItem = document.getElementById('menu-logout');
+            if (logoutItem) logoutItem.style.display = 'block';
+
+            // Account info window
+            var acctUsername = document.getElementById('acct-username');
+            var acctEmail    = document.getElementById('acct-email');
+            var acctSince    = document.getElementById('acct-since');
+            if (acctUsername) acctUsername.textContent = user.username;
+            if (acctEmail)    acctEmail.textContent    = user.email;
+            if (acctSince)    acctSince.textContent    = new Date().toLocaleDateString();
+
+            // Inventory panel
+            renderInvMS();
+
+            // Tell the character iframe to initialise
+            callCharIframe('refreshChar');
+        })
+        .catch(function () { window.location.replace('index.html'); });
+
+})();
+</script>
+
+</body>
+</html>

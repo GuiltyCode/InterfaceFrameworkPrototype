@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="css/w95.css">
+    <style>
+        html, body { margin:0; padding:0; height:100%; background:#c0c0c0; overflow-y:auto; font-family:'Windows 95',sans-serif; font-size:0.78rem; }
+        body { padding:8px; box-sizing:border-box; }
+        .ms-filter-bar { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px; align-items:center; }
+        .ms-filter-bar label { font-size:0.75rem; margin:0; }
+        .ms-filter-bar select, .ms-filter-bar input { border:2px inset #888; padding:2px 4px; font-family:'Windows 95',sans-serif; font-size:0.75rem; background:#fff; }
+        .ms-card { border:2px solid #888; background:#c0c0c0; margin-bottom:8px; }
+        .ms-card-header { background:#000181; color:#fff; padding:3px 8px; display:flex; justify-content:space-between; align-items:center; }
+        .ms-card-header span { font-size:0.7rem; opacity:0.85; }
+        .ms-card-body { padding:6px 8px; }
+        .ms-stat-row { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin:4px 0; }
+        .ms-stat { background:#fff; border:1px inset #888; text-align:center; padding:2px; }
+        .ms-stat .lbl { font-size:0.6rem; color:#444; }
+        .ms-stat .val { font-size:0.85rem; font-weight:bold; }
+        .ms-tag { display:inline-block; background:#000181; color:#fff; padding:1px 5px; margin:1px; font-size:0.65rem; }
+        .ms-equip-btn { font-size:0.7rem; padding:2px 8px; margin-top:4px; }
+        .ms-footer { font-size:0.65rem; color:#666; margin-top:8px; }
+        #no-results { font-size:0.8rem; }
+        .era-badge { font-size:0.6rem; background:#444; color:#fff; padding:1px 4px; margin-left:4px; }
+    </style>
+</head>
+<body>
+<div id="store-root"><p>Loading...</p></div>
+<script>
+(function () {
+
+    // ── Official UC Mobile Suit list with Gundam 5e-style stats ───────────────
+    // Sources: gundam.fandom.com/wiki/Universal_Century_Mobile_Weapons (official canon list)
+    // 5e stats are fan-generated following the Gundam 5e ruleset format (gundam5e.com).
+    var MS_DATA = [
+
+        // ── ONE YEAR WAR — PRINCIPALITY OF ZEON ──────────────────────────────
+        { id:'ms05b',     name:'MS-05B Zaku I',                    era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:60000,   rarity:'Common',    tags:['General MS'],                 evasion:9,  ap:60,  threshold:8,  armorDie:'1d6',  str:12,dex:10,con:12, speed:{land:40,air:0,zeroG:40,amph:0},  immune:['Psychic','Poison'], resistant:[],                      fixed:'120mm Machine Gun, Spike Shield',                                upgradeSlots:2, notes:'First mass-production Zeon suit. Slower than the Zaku II.',                 img:'https://static.wikia.nocookie.net/gundam/images/6/6e/MS-05B_Zaku_I.jpg' },
+        { id:'ms06f',     name:'MS-06F Zaku II',                   era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:100000,  rarity:'Common',    tags:['General MS'],                 evasion:10, ap:65,  threshold:10, armorDie:'1d6',  str:14,dex:10,con:14, speed:{land:50,air:0,zeroG:50,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'120mm Machine Gun, Heat Hawk',                                   upgradeSlots:3, notes:"The backbone of Zeon's forces. Versatile and available.",                img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'ms06j',     name:'MS-06J Zaku II Ground Type',       era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:90000,   rarity:'Common',    tags:['General MS'],                 evasion:10, ap:65,  threshold:10, armorDie:'1d6',  str:14,dex:10,con:14, speed:{land:55,air:0,zeroG:30,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'120mm Machine Gun, Heat Hawk, Cracker Grenades',                 upgradeSlots:3, notes:'Ground-optimised Zaku II. Excels on land operations.',                  img:'https://static.wikia.nocookie.net/gundam/images/b/b8/MS-06J_Zaku_II_Ground_Type.jpg' },
+        { id:'ms06s',     name:'MS-06S Zaku II Commander Type',    era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:150000,  rarity:'Uncommon',  tags:['General MS'],                 evasion:12, ap:70,  threshold:10, armorDie:'1d6',  str:14,dex:12,con:14, speed:{land:60,air:0,zeroG:60,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'120mm Machine Gun, Heat Hawk',                                   upgradeSlots:3, notes:"Char Aznable's personal unit. +1 to pilot attack rolls.",              img:'https://static.wikia.nocookie.net/gundam/images/1/1c/MS-06S_Zaku_II_Commander_Type.jpg' },
+        { id:'ms06fz',    name:'MS-06FZ Zaku II Kai',              era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:130000,  rarity:'Uncommon',  tags:['General MS'],                 evasion:11, ap:68,  threshold:10, armorDie:'1d6',  str:14,dex:11,con:14, speed:{land:52,air:0,zeroG:55,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'120mm Machine Gun, Heat Hawk',                                   upgradeSlots:3, notes:'Improved late-war Zaku II. Slightly faster with better sensors.',      img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'ms06k',     name:'MS-06K Zaku Cannon',               era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:110000,  rarity:'Uncommon',  tags:['General MS'],                 evasion:8,  ap:68,  threshold:10, armorDie:'1d6',  str:14,dex:8, con:14, speed:{land:40,air:0,zeroG:35,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'180mm Cannon (3d8 ballistic, 400m range), Vulcan Gun',           upgradeSlots:2, notes:'Artillery variant. Cannon ignores half-cover.',                          img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'ms07b',     name:'MS-07B Gouf',                      era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:180000,  rarity:'Uncommon',  tags:['General MS'],                 evasion:12, ap:72,  threshold:10, armorDie:'1d6',  str:14,dex:12,con:14, speed:{land:60,air:0,zeroG:50,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'Heat Rod (1d10 lightning, grapple), 75mm Finger Vulcan, Heat Sword (2d6)', upgradeSlots:3, notes:'Land-combat specialist. Heat Rod grapples on hit (DEX DC 14).',       img:'https://static.wikia.nocookie.net/gundam/images/7/79/MS-07B_Gouf.jpg' },
+        { id:'ms07b3',    name:'MS-07B-3 Gouf Custom',             era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:220000,  rarity:'Rare',      tags:['General MS'],                 evasion:13, ap:75,  threshold:11, armorDie:'1d8',  str:14,dex:13,con:14, speed:{land:65,air:0,zeroG:55,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'Heat Wire (1d10, grapple 30m), 3-barrel Gatling (2d6), Heat Saber (2d8)', upgradeSlots:3, notes:"Norris Packard's custom. +1 to attack rolls.",                        img:'https://static.wikia.nocookie.net/gundam/images/7/79/MS-07B_Gouf.jpg' },
+        { id:'ms09b',     name:'MS-09B Dom',                       era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:220000,  rarity:'Uncommon',  tags:['General MS'],                 evasion:11, ap:80,  threshold:12, armorDie:'1d8',  str:16,dex:10,con:16, speed:{land:80,air:0,zeroG:50,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'Scattering Beam Gun (2d6 radiant), Giant Bazooka (3d8), Heat Saber (2d6)', upgradeSlots:3, notes:'Hover-jet system. Ignores land difficult terrain.',                  img:'https://static.wikia.nocookie.net/gundam/images/6/68/MS-09_Dom.jpg' },
+        { id:'ms09r',     name:'MS-09R Rick Dom',                  era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:240000,  rarity:'Uncommon',  tags:['General MS'],                 evasion:12, ap:78,  threshold:12, armorDie:'1d8',  str:16,dex:10,con:16, speed:{land:40,air:0,zeroG:80,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'Giant Bazooka (3d8), Scattering Beam Gun (2d6), Heat Saber (2d6)', upgradeSlots:3, notes:'Space-optimized Dom. Standard Zeon space forces suit.',              img:'https://static.wikia.nocookie.net/gundam/images/d/d4/MS-09R_Rick_Dom.jpg' },
+        { id:'ms09rii',   name:'MS-09R-II Rick Dom II',            era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:260000,  rarity:'Rare',      tags:['General MS'],                 evasion:13, ap:80,  threshold:12, armorDie:'1d8',  str:16,dex:11,con:16, speed:{land:40,air:0,zeroG:90,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'Giant Bazooka (3d8), Beam Bazooka (3d8 energy), Heat Saber (2d8)', upgradeSlots:3, notes:'Upgraded Rick Dom. Improved Zero-G speed and weapons.',                img:'https://static.wikia.nocookie.net/gundam/images/d/d4/MS-09R_Rick_Dom.jpg' },
+        { id:'ms14a',     name:'MS-14A Gelgoog',                   era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:300000,  rarity:'Rare',      tags:['General MS'],                 evasion:13, ap:80,  threshold:12, armorDie:'1d8',  str:14,dex:12,con:14, speed:{land:50,air:0,zeroG:70,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Beam Rifle (2d8 energy), Beam Naginata (2d8 energy, reach), Shield',  upgradeSlots:4, notes:'First Zeon MS with a beam weapon. Rivals the Gundam.',             img:'https://static.wikia.nocookie.net/gundam/images/6/6e/MS-14A_Gelgoog.jpg' },
+        { id:'ms14jg',    name:'MS-14Jg Gelgoog Jäger',           era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:340000,  rarity:'Rare',      tags:['General MS'],                 evasion:14, ap:80,  threshold:12, armorDie:'1d8',  str:14,dex:14,con:14, speed:{land:50,air:0,zeroG:85,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Beam Machine Gun (2d6 energy, burst), Beam Naginata (2d8), Shield', upgradeSlots:3, notes:'High-speed sniper/assault variant. Advantage on first attack per turn.', img:'https://static.wikia.nocookie.net/gundam/images/6/6e/MS-14A_Gelgoog.jpg' },
+        { id:'ms18e',     name:'MS-18E Kämpfer',                   era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:350000,  rarity:'Rare',      tags:['General MS'],                 evasion:15, ap:72,  threshold:10, armorDie:'1d8',  str:14,dex:15,con:12, speed:{land:55,air:0,zeroG:90,amph:0},  immune:['Psychic','Poison'], resistant:[],                      fixed:'Shotgun (2d8 ballistic, cone), Chain Mine, Panzerfaust x2 (3d8)', upgradeSlots:2, notes:'Rapid-assault suit. Extremely high speed but lightly armoured.',       img:'https://static.wikia.nocookie.net/gundam/images/8/8c/MSM-04_Acguy.jpg' },
+        { id:'msm03',     name:'MSM-03 Gogg',                      era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:140000,  rarity:'Common',    tags:['General MS','Amphibious MS'], evasion:10, ap:75,  threshold:12, armorDie:'1d6',  str:16,dex:9, con:18, speed:{land:35,air:0,zeroG:35,amph:65}, immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'Torpedo x4 (2d8 ballistic), Iron Nail (1d10 slashing), Mega Particle x2 (2d6 energy)', upgradeSlots:2, notes:'Heavy amphibious assault. Very tough hull.',            img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'msm04',     name:'MSM-04 Acguy',                     era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:130000,  rarity:'Common',    tags:['General MS','Amphibious MS'], evasion:12, ap:65,  threshold:10, armorDie:'1d6',  str:14,dex:12,con:14, speed:{land:50,air:0,zeroG:40,amph:60}, immune:['Psychic','Poison'], resistant:[],                      fixed:'Torpedo (2d8 ballistic, underwater), Claw Arms (1d8), Vulcan Gun', upgradeSlots:3, notes:'Infiltration amphibious. Advantage on Stealth in aquatic terrain.',  img:'https://static.wikia.nocookie.net/gundam/images/8/8c/MSM-04_Acguy.jpg' },
+        { id:'msm07',     name:"MSM-07 Z'Gok",                     era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:160000,  rarity:'Uncommon',  tags:['General MS','Amphibious MS'], evasion:11, ap:75,  threshold:10, armorDie:'1d6',  str:16,dex:10,con:16, speed:{land:40,air:0,zeroG:40,amph:70}, immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:"Mega Particle Cannon x2 (2d8 energy), Iron Nail Claw (2d6)",    upgradeSlots:3, notes:'Amphibious assault. Fully operational underwater.',                  img:"https://static.wikia.nocookie.net/gundam/images/4/44/MSM-07_Z%27Gok.jpg" },
+        { id:'msm07e',    name:"MSM-07E Z'Gok-E",                  era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:190000,  rarity:'Uncommon',  tags:['General MS','Amphibious MS'], evasion:12, ap:75,  threshold:10, armorDie:'1d6',  str:16,dex:11,con:16, speed:{land:45,air:0,zeroG:45,amph:75}, immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:"Mega Particle Cannon x2 (2d8), Claw (2d6), Super-speed Torpedo (3d6)", upgradeSlots:3, notes:'Upgraded Z\'Gok. Better land mobility and weapons.',             img:"https://static.wikia.nocookie.net/gundam/images/4/44/MSM-07_Z%27Gok.jpg" },
+        { id:'msm10',     name:'MSM-10 Zock',                      era:'One Year War', faction:'Principality of Zeon', size:'Large',  cost:280000,  rarity:'Uncommon',  tags:['General MS','Amphibious MS'], evasion:8,  ap:110, threshold:16, armorDie:'1d10', str:18,dex:8, con:20, speed:{land:20,air:0,zeroG:30,amph:55}, immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Mega Particle Cannon x8 (2d8 energy each, 360°), Stone Rocket', upgradeSlots:2, notes:'Massive amphibious fortress. Fires in all directions simultaneously.', img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'msn02',     name:'MSN-02 Zeong',                     era:'One Year War', faction:'Principality of Zeon', size:'Large',  cost:500000,  rarity:'Very Rare', tags:['General MS','Psycommu MS'],  evasion:12, ap:120, threshold:16, armorDie:'1d10', str:18,dex:12,con:18, speed:{land:0, air:0,zeroG:80,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Wire-guided Bits x5 (2d8 energy each, reaction), Mega Particle Cannon x5 (3d8)', upgradeSlots:3, notes:'Psycommu wire-guided bits attack as bonus action. Space only.', img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'yms15',     name:'YMS-15 Gyan',                      era:'One Year War', faction:'Principality of Zeon', size:'Medium', cost:260000,  rarity:'Rare',      tags:['General MS'],                 evasion:14, ap:75,  threshold:11, armorDie:'1d8',  str:14,dex:14,con:14, speed:{land:50,air:0,zeroG:70,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'Beam Sabre (2d10 energy), Needle Missile x12 (1d6 piercing each), Shield', upgradeSlots:3, notes:'Duel-oriented prototype. Needle missiles deploy in a burst (3m radius).', img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+
+        // ── ONE YEAR WAR — EARTH FEDERATION ──────────────────────────────────
+        { id:'rx752',     name:'RX-75-4 Guntank',                  era:'One Year War', faction:'Earth Federation',      size:'Large',  cost:280000,  rarity:'Rare',      tags:['General MS','Gundam MS'],     evasion:8,  ap:100, threshold:16, armorDie:'1d10', str:18,dex:6, con:20, speed:{land:30,air:0,zeroG:20,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Piercing'],  fixed:'120mm Cannon x2 (3d10 ballistic), Missile Launchers (2d8, 5 targets)', upgradeSlots:2, notes:'Heavy artillery. Cannon volleys target up to 5 units.',              img:'https://static.wikia.nocookie.net/gundam/images/4/49/RX-75-4_Guntank.jpg' },
+        { id:'rx772',     name:'RX-77-2 Guncannon',                era:'One Year War', faction:'Earth Federation',      size:'Medium', cost:400000,  rarity:'Rare',      tags:['General MS','Gundam MS'],     evasion:11, ap:85,  threshold:14, armorDie:'1d8',  str:14,dex:10,con:16, speed:{land:40,air:50,zeroG:50,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'180mm Cannon x2 (3d8, 300m), Vulcan Gun, Beam Saber (1d8)',     upgradeSlots:3, notes:'Fire support. Cannon attacks ignore half-cover.',                     img:'https://static.wikia.nocookie.net/gundam/images/a/a4/RX-77-2_Guncannon.jpg' },
+        { id:'rx782',     name:'RX-78-2 Gundam',                   era:'One Year War', faction:'Earth Federation',      size:'Medium', cost:800000,  rarity:'Very Rare', tags:['General MS','Gundam MS'],     evasion:14, ap:90,  threshold:15, armorDie:'1d8',  str:16,dex:14,con:16, speed:{land:60,air:70,zeroG:70,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Beam Rifle (3d8 energy), Beam Saber (2d8), Hyper Bazooka, Shield', upgradeSlots:4, notes:'The legendary prototype. Advantage on saves vs. fear.',              img:'https://static.wikia.nocookie.net/gundam/images/4/4f/RX-78-2_Gundam.jpg' },
+        { id:'rx78nt1',   name:'RX-78NT-1 Gundam NT-1 "Alex"',    era:'One Year War', faction:'Earth Federation',      size:'Medium', cost:850000,  rarity:'Very Rare', tags:['General MS','Gundam MS'],     evasion:15, ap:92,  threshold:15, armorDie:'1d8',  str:16,dex:15,con:16, speed:{land:65,air:75,zeroG:75,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'90mm Gatling (2d8 ballistic, burst), Beam Sabre x2 (2d8), Chobham Armour', upgradeSlots:4, notes:"Newtype-use prototype. Chobham armour grants resistance to 1 attack/round.", img:'https://static.wikia.nocookie.net/gundam/images/4/4f/RX-78-2_Gundam.jpg' },
+        { id:'rgm79',     name:'RGM-79 GM',                        era:'One Year War', faction:'Earth Federation',      size:'Medium', cost:120000,  rarity:'Common',    tags:['General MS'],                 evasion:11, ap:65,  threshold:10, armorDie:'1d6',  str:12,dex:10,con:12, speed:{land:50,air:60,zeroG:60,amph:0},  immune:['Psychic','Poison'], resistant:[],                      fixed:'Beam Spray Gun (2d6 energy), Beam Saber (1d8), Shield',          upgradeSlots:3, notes:'Federation mass-production workhorse. Reliable and easy to maintain.', img:'https://static.wikia.nocookie.net/gundam/images/1/15/RGM-79_GM.jpg' },
+        { id:'rgm79g',    name:'RGM-79[G] GM Ground Type',         era:'One Year War', faction:'Earth Federation',      size:'Medium', cost:110000,  rarity:'Common',    tags:['General MS'],                 evasion:11, ap:65,  threshold:10, armorDie:'1d6',  str:12,dex:10,con:12, speed:{land:60,air:30,zeroG:30,amph:0},  immune:['Psychic','Poison'], resistant:[],                      fixed:'100mm Machine Gun, Beam Saber (1d8), Grenade Launcher',          upgradeSlots:3, notes:'Ground combat GM. Advantage on Athletics on land terrain.',           img:'https://static.wikia.nocookie.net/gundam/images/1/15/RGM-79_GM.jpg' },
+        { id:'rgm79sp',   name:'RGM-79SP GM Sniper II',            era:'One Year War', faction:'Earth Federation',      size:'Medium', cost:200000,  rarity:'Uncommon',  tags:['General MS'],                 evasion:12, ap:65,  threshold:10, armorDie:'1d6',  str:12,dex:14,con:12, speed:{land:50,air:60,zeroG:60,amph:0},  immune:['Psychic','Poison'], resistant:[],                      fixed:'Long-Range Beam Rifle (3d8 energy, 600m), Beam Saber (1d8)',     upgradeSlots:2, notes:'Precision sniper variant. Ignores three-quarters cover.',             img:'https://static.wikia.nocookie.net/gundam/images/1/15/RGM-79_GM.jpg' },
+        { id:'rx79g',     name:'RX-79[G] Gundam Ground Type',      era:'One Year War', faction:'Earth Federation',      size:'Medium', cost:500000,  rarity:'Rare',      tags:['General MS','Gundam MS'],     evasion:13, ap:85,  threshold:14, armorDie:'1d8',  str:16,dex:12,con:16, speed:{land:65,air:40,zeroG:40,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'100mm Machine Gun, Beam Saber x2 (2d8), Hyper Bazooka, Shield', upgradeSlots:3, notes:'Ground deployment Gundam. +1 attack and damage on land terrain.',       img:'https://static.wikia.nocookie.net/gundam/images/4/4f/RX-78-2_Gundam.jpg' },
+        { id:'rx78gp01',  name:'RX-78GP01 Gundam "Zephyranthes"', era:'Stardust Memory', faction:'Earth Federation',   size:'Medium', cost:780000,  rarity:'Very Rare', tags:['General MS','Gundam MS'],     evasion:14, ap:90,  threshold:15, armorDie:'1d8',  str:16,dex:14,con:16, speed:{land:60,air:70,zeroG:70,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Beam Rifle (3d8 energy), Beam Saber x2 (2d8), Vulcan Gun, Shield', upgradeSlots:4, notes:'GP series prototype. Modular weapon system.',                         img:'https://static.wikia.nocookie.net/gundam/images/4/4f/RX-78-2_Gundam.jpg' },
+        { id:'rx78gp02',  name:'RX-78GP02A Gundam "Physalis"',    era:'Stardust Memory', faction:'Earth Federation',   size:'Large',  cost:900000,  rarity:'Very Rare', tags:['General MS','Gundam MS'],     evasion:11, ap:110, threshold:16, armorDie:'1d10', str:18,dex:11,con:18, speed:{land:50,air:60,zeroG:60,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy','Piercing'], fixed:'Atomic Bazooka (10d10 radiant, 500m, 1/mission), Beam Sabre (2d8), Shield', upgradeSlots:3, notes:'Nuclear-launch suit. Atomic Bazooka is a one-use catastrophic attack.', img:'https://static.wikia.nocookie.net/gundam/images/4/4f/RX-78-2_Gundam.jpg' },
+
+        // ── GRYPS CONFLICT (0087–0088) ────────────────────────────────────────
+        { id:'rx178',     name:'RX-178 Gundam Mk-II',              era:'Gryps Conflict', faction:'AEUG',               size:'Medium', cost:700000,  rarity:'Very Rare', tags:['General MS','Gundam MS'],     evasion:14, ap:88,  threshold:14, armorDie:'1d8',  str:16,dex:13,con:16, speed:{land:60,air:75,zeroG:75,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Beam Rifle (3d8 energy), Beam Saber x2 (2d8), Vulcan Gun, Shield', upgradeSlots:4, notes:'First Federation MS with AMBAC. Can combine with G-Defenser.',          img:'https://static.wikia.nocookie.net/gundam/images/4/4f/RX-78-2_Gundam.jpg' },
+        { id:'msz006',    name:'MSZ-006 Zeta Gundam',              era:'Gryps Conflict', faction:'AEUG',               size:'Medium', cost:900000,  rarity:'Very Rare', tags:['General MS','Gundam MS'],     evasion:15, ap:95,  threshold:15, armorDie:'1d8',  str:16,dex:15,con:16, speed:{land:60,air:120,zeroG:100,amph:0}, immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],  fixed:'Beam Rifle (3d8 energy), Beam Saber (2d8), Grenade Launcher, Bio-Sensor', upgradeSlots:4, notes:'Transformable into wave-rider. Fly speed doubled in wave-rider mode.',  img:'https://static.wikia.nocookie.net/gundam/images/4/4f/RX-78-2_Gundam.jpg' },
+        { id:'msn00100',  name:'MSN-00100 Hyaku Shiki',            era:'Gryps Conflict', faction:'AEUG',               size:'Medium', cost:650000,  rarity:'Very Rare', tags:['General MS','Gundam MS'],     evasion:15, ap:88,  threshold:14, armorDie:'1d8',  str:14,dex:15,con:14, speed:{land:55,air:80,zeroG:90,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Beam Rifle (3d8 energy), Clay Bazooka (2d8), Beam Saber (2d8)',  upgradeSlots:4, notes:'Gold-plated anti-beam coating. Immune to first energy hit per combat.', img:'https://static.wikia.nocookie.net/gundam/images/4/4f/RX-78-2_Gundam.jpg' },
+        { id:'msa003',    name:'MSA-003 Nemo',                     era:'Gryps Conflict', faction:'AEUG',               size:'Medium', cost:180000,  rarity:'Common',    tags:['General MS'],                 evasion:12, ap:68,  threshold:10, armorDie:'1d6',  str:12,dex:11,con:12, speed:{land:50,air:70,zeroG:70,amph:0},  immune:['Psychic','Poison'], resistant:[],                      fixed:'Beam Rifle (2d8 energy), Beam Saber (1d8), Shield',              upgradeSlots:3, notes:'AEUG mass-production MS. Reliable upgrade over the GM.',              img:'https://static.wikia.nocookie.net/gundam/images/1/15/RGM-79_GM.jpg' },
+        { id:'rms106',    name:'RMS-106 Hi-Zack',                  era:'Gryps Conflict', faction:'Titans',             size:'Medium', cost:160000,  rarity:'Common',    tags:['General MS'],                 evasion:11, ap:68,  threshold:10, armorDie:'1d6',  str:14,dex:10,con:14, speed:{land:50,air:65,zeroG:65,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'120mm Machine Gun, Beam Saber (1d8), Shield',                    upgradeSlots:3, notes:"Titans' standard mass-production suit. Zeon-derived design.",          img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'pmx003',    name:'PMX-003 The O',                    era:'Gryps Conflict', faction:'Titans',             size:'Large',  cost:600000,  rarity:'Very Rare', tags:['General MS'],                 evasion:12, ap:110, threshold:16, armorDie:'1d10', str:18,dex:12,con:18, speed:{land:50,air:80,zeroG:80,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Beam Saber x4 (2d8 energy, two as reaction), Beam Rifle (3d8)', upgradeSlots:3, notes:"Scirocco's massive flagship. Hidden inner arms can attack as a reaction.", img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'mrx009',    name:'MRX-009 Psycho Gundam',            era:'Gryps Conflict', faction:'Titans',             size:'Huge',   cost:900000,  rarity:'Very Rare', tags:['General MS','Psycommu MS'],  evasion:10, ap:160, threshold:20, armorDie:'1d10', str:22,dex:8, con:22, speed:{land:30,air:50,zeroG:50,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy','Piercing'], fixed:'Mega Beam Gun (4d10 energy), Diffuse Beam Cannon (3d8, 15m cone), Reflector Bits', upgradeSlots:3, notes:'Massive mobile fortress. Psycommu required. Reflector Bits redirect beams as reaction.', img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MRX-009_Psyco_Gundam.jpg' },
+        { id:'rx139',     name:'RX-139 Hambrabi',                  era:'Gryps Conflict', faction:'Titans',             size:'Medium', cost:350000,  rarity:'Rare',      tags:['General MS'],                 evasion:14, ap:78,  threshold:12, armorDie:'1d8',  str:14,dex:14,con:14, speed:{land:50,air:90,zeroG:85,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'Sea Serpent Wire (1d10, grapple), Beam Rifle (2d8 energy), Feyadeen Saber', upgradeSlots:3, notes:'Transformable sea/space suit. Wire weapon grapples on hit.',            img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'amx003',    name:'AMX-003 Gaza-C',                   era:'Gryps Conflict', faction:'Neo Zeon',           size:'Medium', cost:200000,  rarity:'Uncommon',  tags:['General MS'],                 evasion:12, ap:72,  threshold:10, armorDie:'1d6',  str:14,dex:11,con:14, speed:{land:45,air:75,zeroG:75,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'Beam Gun x2 (2d6 energy), Heat Naginata (2d6), Leg Missiles',   upgradeSlots:3, notes:"Neo Zeon's mass-production transformable. Standard space forces suit.",  img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'amx004',    name:'AMX-004 Qubeley',                  era:'Gryps Conflict', faction:'Neo Zeon',           size:'Medium', cost:700000,  rarity:'Very Rare', tags:['General MS','Psycommu MS'],  evasion:15, ap:92,  threshold:14, armorDie:'1d8',  str:14,dex:15,con:14, speed:{land:40,air:0,zeroG:90,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Funnel x10 (1d10 energy each, remote), Beam Gun (2d8 energy)',  upgradeSlots:3, notes:"Haman's flagship. Funnels attack 10 separate targets simultaneously.",   img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+
+        // ── SECOND NEO ZEON WAR (0088–0089) ──────────────────────────────────
+        { id:'msz010',    name:'MSZ-010 ZZ Gundam',                era:'Neo Zeon War',  faction:'AEUG',               size:'Medium', cost:950000,  rarity:'Very Rare', tags:['General MS','Gundam MS'],     evasion:14, ap:100, threshold:16, armorDie:'1d8',  str:18,dex:14,con:18, speed:{land:60,air:130,zeroG:100,amph:0}, immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],  fixed:'High Mega Cannon (6d10 energy, 1/short rest), Beam Rifle (3d8), Double Beam Rifle, Beam Saber x2', upgradeSlots:4, notes:'Massive firepower. High Mega Cannon recharges on short rest.', img:'https://static.wikia.nocookie.net/gundam/images/4/4f/RX-78-2_Gundam.jpg' },
+        { id:'amx014',    name:'AMX-014 Döven Wolf',               era:'Neo Zeon War',  faction:'Neo Zeon',           size:'Large',  cost:400000,  rarity:'Rare',      tags:['General MS','Psycommu MS'],  evasion:12, ap:100, threshold:14, armorDie:'1d10', str:18,dex:12,con:18, speed:{land:40,air:0,zeroG:75,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Mega Beam Launcher (4d8 energy), Funnels x6 (1d8 each, remote), Beam Saber', upgradeSlots:3, notes:'Heavy assault Psycommu MS. Funnels as bonus action.',              img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'amx011',    name:'AMX-011 Zaku III',                 era:'Neo Zeon War',  faction:'Neo Zeon',           size:'Medium', cost:280000,  rarity:'Uncommon',  tags:['General MS'],                 evasion:13, ap:80,  threshold:12, armorDie:'1d8',  str:14,dex:12,con:14, speed:{land:50,air:0,zeroG:80,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'Beam Machine Gun (2d8 energy), Beam Saber x2 (2d6), Arm Missiles', upgradeSlots:3, notes:'Neo Zeon Zaku successor. High space mobility.',                       img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'amx103',    name:'AMX-103 Hamma Hamma',              era:'Neo Zeon War',  faction:'Neo Zeon',           size:'Medium', cost:360000,  rarity:'Rare',      tags:['General MS','Psycommu MS'],  evasion:13, ap:85,  threshold:13, armorDie:'1d8',  str:16,dex:13,con:16, speed:{land:45,air:0,zeroG:80,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Remote Weaponized Arms x2 (2d8 energy, 30m range), Beam Gun (2d8)', upgradeSlots:3, notes:'Psycommu detachable arms attack at range as bonus action.',              img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+
+        // ── SECOND NEO ZEON (CHAR'S COUNTERATTACK 0093) ───────────────────────
+        { id:'rx93',      name:'RX-93 ν Gundam',                   era:"Char's Counterattack", faction:'Londo Bell',  size:'Medium', cost:1000000, rarity:'Very Rare', tags:['General MS','Gundam MS','Psycommu MS'], evasion:15, ap:100, threshold:16, armorDie:'1d8', str:16,dex:15,con:16, speed:{land:60,air:80,zeroG:100,amph:0}, immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],  fixed:'Beam Rifle (3d8 energy), Fin Funnels x6 (1d10 each, form barrier), Beam Saber x2 (2d8), Shield', upgradeSlots:4, notes:"Amuro's final MS. Fin Funnels form a barrier (reaction, negate one hit/round).", img:'https://static.wikia.nocookie.net/gundam/images/4/4f/RX-78-2_Gundam.jpg' },
+        { id:'msn04',     name:'MSN-04 Sazabi',                    era:"Char's Counterattack", faction:'Neo Zeon',    size:'Large',  cost:950000,  rarity:'Very Rare', tags:['General MS','Psycommu MS'],  evasion:14, ap:115, threshold:16, armorDie:'1d10', str:18,dex:14,con:18, speed:{land:55,air:0,zeroG:105,amph:0}, immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],  fixed:'Beam Shot Rifle (3d10 energy), Funnels x6 (1d10 each), Beam Saber (2d10), Shield', upgradeSlots:4, notes:"Char's ultimate MS. One of the most powerful suits of the UC era.",     img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'msn03',     name:'MSN-03 Jagd Doga',                 era:"Char's Counterattack", faction:'Neo Zeon',    size:'Medium', cost:500000,  rarity:'Rare',      tags:['General MS','Psycommu MS'],  evasion:13, ap:92,  threshold:14, armorDie:'1d8',  str:16,dex:13,con:16, speed:{land:50,air:0,zeroG:90,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Beam Assault Rifle (3d8 energy), Funnels x5 (1d8 each), Beam Saber (2d8)', upgradeSlots:3, notes:'Neo Zeon ace suit. Standard Psycommu weapon platform.',                img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'ams119',    name:'AMS-119 Geara Doga',               era:"Char's Counterattack", faction:'Neo Zeon',    size:'Medium', cost:220000,  rarity:'Common',    tags:['General MS'],                 evasion:12, ap:75,  threshold:11, armorDie:'1d6',  str:14,dex:11,con:14, speed:{land:50,air:0,zeroG:75,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'Beam Assault Rifle (2d8 energy), Beam Saber (1d8), Grenade Launcher', upgradeSlots:3, notes:"Neo Zeon's front-line mass-production suit.",                          img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'rgm89',     name:'RGM-89 Jegan',                     era:"Char's Counterattack", faction:'Earth Federation', size:'Medium', cost:200000, rarity:'Common',  tags:['General MS'],                 evasion:12, ap:70,  threshold:10, armorDie:'1d6',  str:12,dex:11,con:12, speed:{land:50,air:70,zeroG:70,amph:0},  immune:['Psychic','Poison'], resistant:[],                      fixed:'Beam Rifle (2d8 energy), Beam Saber (1d8), Vulcan Gun, Shield', upgradeSlots:3, notes:"Londo Bell's standard MS. Reliable successor to the GM.",              img:'https://static.wikia.nocookie.net/gundam/images/1/15/RGM-79_GM.jpg' },
+        { id:'rgz91',     name:'RGZ-91 Re-GZ',                     era:"Char's Counterattack", faction:'Londo Bell',  size:'Medium', cost:500000,  rarity:'Rare',      tags:['General MS','Gundam MS'],     evasion:14, ap:85,  threshold:13, armorDie:'1d8',  str:14,dex:14,con:14, speed:{land:55,air:80,zeroG:85,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Beam Rifle (3d8 energy), Beam Saber (2d8), Grenade Launcher',   upgradeSlots:3, notes:'Simplified Zeta-derived transformable. Strong all-rounder.',             img:'https://static.wikia.nocookie.net/gundam/images/4/4f/RX-78-2_Gundam.jpg' },
+
+        // ── UNICORN ERA (0096) ─────────────────────────────────────────────────
+        { id:'rx0',       name:'RX-0 Unicorn Gundam',              era:'Unicorn Era',   faction:'Londo Bell',         size:'Medium', cost:1200000, rarity:'Very Rare', tags:['General MS','Gundam MS','Psycommu MS'], evasion:16, ap:105, threshold:16, armorDie:'1d8', str:16,dex:16,con:16, speed:{land:65,air:85,zeroG:105,amph:0}, immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],  fixed:'Beam Magnum (5d10 energy, 4 shots), Beam Saber x2 (2d8), Hyper Bazooka, NT-D System', upgradeSlots:4, notes:'NT-D activates when threatened: +2 evasion, +1d8 damage, Psycommu access for 3 rounds.', img:'https://static.wikia.nocookie.net/gundam/images/4/4f/RX-78-2_Gundam.jpg' },
+        { id:'msn06s',    name:'MSN-06S Sinanju',                   era:'Unicorn Era',   faction:'Neo Zeon',           size:'Medium', cost:1100000, rarity:'Very Rare', tags:['General MS','Psycommu MS'],  evasion:16, ap:105, threshold:16, armorDie:'1d8',  str:16,dex:16,con:16, speed:{land:60,air:0,zeroG:115,amph:0}, immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],  fixed:'Beam Rifle (3d10 energy), Beam Saber (3d8 energy), Bazooka (3d8), Shield Funnel x2', upgradeSlots:4, notes:'Full Frontal\'s flagship. Highest Zero-G speed of any standard MS.',  img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'ams129',    name:'AMS-129 Geara Zulu',               era:'Unicorn Era',   faction:'Neo Zeon',           size:'Medium', cost:250000,  rarity:'Common',    tags:['General MS'],                 evasion:12, ap:78,  threshold:11, armorDie:'1d6',  str:14,dex:11,con:14, speed:{land:50,air:0,zeroG:80,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'Beam Assault Rifle (2d8 energy), Beam Saber (1d8), Grenade Launcher', upgradeSlots:3, notes:"Neo Zeon's Unicorn-era standard suit. Refined Geara Doga design.",    img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' },
+        { id:'rgm96x',    name:'RGM-96X Jesta',                    era:'Unicorn Era',   faction:'Londo Bell',         size:'Medium', cost:350000,  rarity:'Uncommon',  tags:['General MS'],                 evasion:13, ap:78,  threshold:11, armorDie:'1d8',  str:14,dex:13,con:14, speed:{land:55,air:75,zeroG:80,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic'],             fixed:'Beam Rifle (2d8 energy), Beam Saber (1d8), Grenade Launcher, Shield', upgradeSlots:3, notes:'Londo Bell elite suit. Precursor to the Jesta Cannon variant.',        img:'https://static.wikia.nocookie.net/gundam/images/1/15/RGM-79_GM.jpg' },
+        { id:'rgz95',     name:'RGZ-95 ReZEL',                     era:'Unicorn Era',   faction:'Londo Bell',         size:'Medium', cost:450000,  rarity:'Rare',      tags:['General MS','Gundam MS'],     evasion:14, ap:85,  threshold:13, armorDie:'1d8',  str:14,dex:14,con:14, speed:{land:55,air:85,zeroG:90,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Beam Rifle (3d8 energy), Beam Saber (2d8), Grenade Launcher, Missile Pods', upgradeSlots:3, notes:'Mass-production Zeta-derived transformable. Wave-rider doubles fly speed.', img:'https://static.wikia.nocookie.net/gundam/images/4/4f/RX-78-2_Gundam.jpg' },
+        { id:'nz666',     name:'NZ-666 Kshatriya',                 era:'Unicorn Era',   faction:'Neo Zeon',           size:'Large',  cost:800000,  rarity:'Very Rare', tags:['General MS','Psycommu MS'],  evasion:13, ap:130, threshold:18, armorDie:'1d10', str:18,dex:13,con:18, speed:{land:40,air:0,zeroG:90,amph:0},  immune:['Psychic','Poison'], resistant:['Ballistic','Energy'],   fixed:'Mega Particle Cannon x4 (3d8 energy each), Funnels x32 (1d8 each, groups of 8), Beam Saber x4', upgradeSlots:3, notes:'Quad-wing Psycommu. Funnels attack 8 targets per bonus action.', img:'https://static.wikia.nocookie.net/gundam/images/5/5e/MS-06F_Zaku_II.jpg' }
+    ];
+
+    // ── Storage helpers ───────────────────────────────────────────────────────
+    var API = '';  // same origin
+
+    // ── Filters ───────────────────────────────────────────────────────────────
+    var _filter = { rarity:'All', faction:'All', era:'All', search:'' };
+
+    window.msFilt = function () {
+        _filter.rarity  = document.getElementById('ms-filter-rarity').value;
+        _filter.faction = document.getElementById('ms-filter-faction').value;
+        _filter.era     = document.getElementById('ms-filter-era').value;
+        _filter.search  = document.getElementById('ms-search').value;
+        renderCards();
+    };
+
+    // ── Equip ─────────────────────────────────────────────────────────────────
+    window.msEquip = function (id) {
+        var suit = MS_DATA.filter(function (s) { return s.id === id; })[0];
+        if (!suit) return;
+
+        fetch(API + '/api/character/equip', {
+            method:      'POST',
+            credentials: 'include',
+            headers:     { 'Content-Type': 'application/json' },
+            body:        JSON.stringify({ mobileSuit: suit.name })
+        })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+        .then(function (res) {
+            if (!res.ok) {
+                alert(res.data.error || 'Could not equip suit.');
+                return;
+            }
+            if (window.parent && window.parent !== window && typeof window.parent.onMSEquipped === 'function') {
+                window.parent.onMSEquipped(suit.name);
+            }
+            alert('Active suit set to: ' + suit.name);
+        })
+        .catch(function () { alert('Could not reach the server.'); });
+    };
+
+    // ── Render ────────────────────────────────────────────────────────────────
+    function renderCards() {
+        var rarityColor = { Common:'#444', Uncommon:'#006400', Rare:'#00008B', 'Very Rare':'#8B008B' };
+
+        var suits = MS_DATA.filter(function (s) {
+            if (_filter.rarity  !== 'All' && s.rarity  !== _filter.rarity)  return false;
+            if (_filter.faction !== 'All' && s.faction !== _filter.faction) return false;
+            if (_filter.era     !== 'All' && s.era     !== _filter.era)     return false;
+            if (_filter.search  && s.name.toLowerCase().indexOf(_filter.search.toLowerCase()) < 0) return false;
+            return true;
+        });
+
+        if (suits.length === 0) {
+            document.getElementById('card-area').innerHTML = '<p id="no-results">No suits found.</p>';
+            return;
+        }
+
+        var html = '';
+        suits.forEach(function (s) {
+            html += '<div class="ms-card">';
+            html += '<div class="ms-card-header">';
+            html += '<strong>' + s.name + '</strong>';
+            html += '<span style="color:' + rarityColor[s.rarity] + ';background:#fff;padding:0 4px;">' + s.rarity + ' · ' + s.faction + '</span>';
+            html += '</div>';
+            html += '<div class="ms-card-body">';
+
+            // Image + stats side by side
+            html += '<div style="display:flex;gap:8px;align-items:flex-start;">';
+            html += '<img src="' + s.img + '" alt="' + s.name + '" style="width:90px;height:90px;object-fit:contain;background:#fff;border:2px inset #888;flex-shrink:0;" onerror="this.outerHTML=\'<div style=&quot;width:90px;height:90px;background:#c0c0c0;border:2px inset #888;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:2rem;&quot;>🤖</div>\'">';
+            html += '<div style="flex:1;min-width:0;">';
+
+            // Era + tags + meta
+            html += '<div style="margin-bottom:4px;">';
+            html += '<span class="era-badge">' + s.era + '</span>';
+            s.tags.forEach(function (t) { html += '<span class="ms-tag">' + t + '</span>'; });
+            html += ' <span style="font-size:0.7rem;">Size: ' + s.size + ' &nbsp;|&nbsp; Cost: ' + s.cost.toLocaleString() + ' G &nbsp;|&nbsp; Slots: ' + s.upgradeSlots + '</span>';
+            html += '</div>';
+
+            // Core stats
+            html += '<div class="ms-stat-row">';
+            html += '<div class="ms-stat"><div class="lbl">Armor Points</div><div class="val">' + s.ap + ' (T' + s.threshold + ')</div></div>';
+            html += '<div class="ms-stat"><div class="lbl">Base Evasion</div><div class="val">' + s.evasion + '</div></div>';
+            html += '<div class="ms-stat"><div class="lbl">Armor Die</div><div class="val">' + s.armorDie + '</div></div>';
+            html += '</div>';
+
+            // Ability scores
+            html += '<div class="ms-stat-row">';
+            html += '<div class="ms-stat"><div class="lbl">STR</div><div class="val">' + s.str + '</div></div>';
+            html += '<div class="ms-stat"><div class="lbl">DEX</div><div class="val">' + s.dex + '</div></div>';
+            html += '<div class="ms-stat"><div class="lbl">CON</div><div class="val">' + s.con + '</div></div>';
+            html += '</div>';
+
+            // Speed
+            html += '<div class="ms-stat-row" style="grid-template-columns:repeat(4,1fr);">';
+            html += '<div class="ms-stat"><div class="lbl">Land</div><div class="val">' + (s.speed.land || '—') + (s.speed.land ? 'm' : '') + '</div></div>';
+            html += '<div class="ms-stat"><div class="lbl">Mid-Air</div><div class="val">' + (s.speed.air || '—') + (s.speed.air ? 'm' : '') + '</div></div>';
+            html += '<div class="ms-stat"><div class="lbl">Zero-G</div><div class="val">' + s.speed.zeroG + 'm</div></div>';
+            html += '<div class="ms-stat"><div class="lbl">Amph.</div><div class="val">' + (s.speed.amph || '—') + (s.speed.amph ? 'm' : '') + '</div></div>';
+            html += '</div>';
+
+            // Defences
+            var defParts = [];
+            if (s.immune.length)    defParts.push('Immune: ' + s.immune.join(', '));
+            if (s.resistant.length) defParts.push('Resistant: ' + s.resistant.join(', '));
+            if (defParts.length) html += '<p style="margin:3px 0;font-size:0.72rem;"><strong>Defenses:</strong> ' + defParts.join('; ') + '</p>';
+
+            html += '<p style="margin:3px 0;font-size:0.72rem;"><strong>Fixed Equipment:</strong> ' + s.fixed + '</p>';
+            if (s.notes) html += '<p style="margin:3px 0;font-size:0.7rem;color:#333;font-style:italic;">' + s.notes + '</p>';
+
+            html += '<button class="btn btn-primary border-dark ms-equip-btn" onclick="msEquip(\'' + s.id + '\')">';
+            html += '<span class="btn-text">⚙️ Set as Active Suit</span></button>';
+            html += '</div></div></div></div>';
+        });
+
+        document.getElementById('card-area').innerHTML = html;
+    }
+
+    function render() {
+        var rarities = ['All','Common','Uncommon','Rare','Very Rare'];
+        var factions = ['All','Earth Federation','Principality of Zeon','AEUG','Titans','Neo Zeon','Londo Bell'];
+        var eras     = ['All','One Year War','Stardust Memory','Gryps Conflict','Neo Zeon War',"Char's Counterattack",'Unicorn Era'];
+
+        var html = '<div class="ms-filter-bar">';
+        html += '<label>Rarity:</label><select id="ms-filter-rarity" onchange="msFilt()">';
+        rarities.forEach(function (r) { html += '<option>' + r + '</option>'; });
+        html += '</select>';
+        html += '<label>Faction:</label><select id="ms-filter-faction" onchange="msFilt()">';
+        factions.forEach(function (f) { html += '<option>' + f + '</option>'; });
+        html += '</select>';
+        html += '<label>Era:</label><select id="ms-filter-era" onchange="msFilt()">';
+        eras.forEach(function (e) { html += '<option>' + e + '</option>'; });
+        html += '</select>';
+        html += '<input type="text" id="ms-search" placeholder="Search name..." oninput="msFilt()" style="width:100px;" />';
+        html += '</div>';
+        html += '<div id="card-area"></div>';
+        html += '<p class="ms-footer">Official UC suit list sourced from <a href="https://gundam.fandom.com/wiki/Universal_Century_Mobile_Weapons" target="_blank">The Gundam Wiki</a>. '
+              + '5e stats are fan-generated following the <a href="https://gundam5e.com" target="_blank">Gundam 5e</a> ruleset format.</p>';
+
+        document.getElementById('store-root').innerHTML = html;
+        renderCards();
+    }
+
+    render();
+
+})();
+</script>
+</body>
+</html>

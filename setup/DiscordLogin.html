@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord OAuth2 Setup — SteelfangsDen</title>
+    <link type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="css/w95.css">
+    <style>
+        body {
+            background: #008081;
+            font-family: 'Windows 95', sans-serif;
+            padding: 20px;
+        }
+        .setup-card {
+            background: #c0c0c0;
+            border: none;
+            margin-bottom: 24px;
+        }
+        .setup-card .card-header {
+            background: #000181;
+            color: #fff;
+            font-size: 0.9rem;
+            padding: 5px 10px;
+        }
+        .setup-card .card-body {
+            padding: 14px;
+            font-size: 0.82rem;
+        }
+        h1 { color: #fff; font-size: 1.1rem; margin-bottom: 16px; }
+        h2 { font-size: 0.9rem; margin: 0 0 8px; }
+        ol, ul { padding-left: 18px; margin-bottom: 10px; }
+        li { margin-bottom: 4px; }
+        code, pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 0.78rem;
+            border: 1px solid #444;
+        }
+        code { padding: 1px 5px; display: inline-block; }
+        pre {
+            padding: 10px 12px;
+            overflow-x: auto;
+            margin: 8px 0;
+            white-space: pre;
+        }
+        .step-number {
+            display: inline-block;
+            background: #000181;
+            color: #fff;
+            width: 22px;
+            height: 22px;
+            text-align: center;
+            line-height: 22px;
+            margin-right: 6px;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        .step-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .note {
+            background: #fffbe6;
+            border-left: 3px solid #cc0;
+            padding: 6px 10px;
+            font-size: 0.78rem;
+            margin: 8px 0;
+        }
+        a { color: #000181; }
+        .file-label {
+            display: inline-block;
+            background: #444;
+            color: #fff;
+            padding: 1px 6px;
+            font-size: 0.7rem;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🔧 Discord OAuth2 — Backend Setup Guide</h1>
+
+<!-- ── OVERVIEW ─────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">📋 Overview</div>
+    <div class="card-body">
+        <p>Discord OAuth2 requires a backend server to safely exchange the auth code for a token without exposing your Client Secret to the browser. This guide walks through the full setup.</p>
+        <p><strong>What we're building:</strong></p>
+        <ul>
+            <li>A Discord Application (Client ID + Secret)</li>
+            <li>Two new routes on the Node.js server: <code>/auth/discord</code> and <code>/auth/discord/callback</code></li>
+            <li>Update <code>Index.html</code> with your Client ID</li>
+        </ul>
+        <p><strong>Flow:</strong></p>
+        <ol>
+            <li>User clicks "Sign in with Discord" in the browser</li>
+            <li>Browser redirects to Discord's auth page</li>
+            <li>User approves → Discord redirects back to <code>/auth/discord/callback</code> with a <code>code</code></li>
+            <li>Server exchanges the code for a token (Client Secret never leaves the server)</li>
+            <li>Server fetches user profile from Discord, creates a session, redirects to <code>/</code></li>
+            <li>Existing session check in <code>Index.html</code> picks up the session and logs the user in</li>
+        </ol>
+    </div>
+</div>
+
+<!-- ── STEP 1 ────────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">Step 1 — Create a Discord Application</div>
+    <div class="card-body">
+        <ol>
+            <li>Go to <a href="https://discord.com/developers/applications" target="_blank">discord.com/developers/applications</a></li>
+            <li>Click <strong>New Application</strong> and give it a name (e.g. <em>SteelfangsDen</em>)</li>
+            <li>In the left sidebar click <strong>OAuth2</strong></li>
+            <li>Under <strong>Redirects</strong>, click <strong>Add Redirect</strong> and enter:<br>
+                <code>http://localhost:3000/auth/discord/callback</code>
+                <div class="note">When you deploy to a real domain later, add that URL here too, e.g. <code>https://yourdomain.com/auth/discord/callback</code></div>
+            </li>
+            <li>Note down your <strong>Client ID</strong> (visible on the OAuth2 page)</li>
+            <li>Click <strong>Reset Secret</strong> to generate your <strong>Client Secret</strong> — save this somewhere safe, you won't see it again</li>
+        </ol>
+    </div>
+</div>
+
+<!-- ── STEP 2 ────────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">Step 2 — Install the discord-oauth2 package</div>
+    <div class="card-body">
+        <p>In your terminal, navigate to the <code>server</code> folder and run:</p>
+        <pre>cd server
+npm install discord-oauth2</pre>
+    </div>
+</div>
+
+<!-- ── STEP 3 ────────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">Step 3 — Add the routes to server/server.js</div>
+    <div class="card-body">
+        <p>Open <code>server/server.js</code> and add the following. Place the constants near the top of the file (after your existing <code>require</code> statements) and the routes alongside your existing <code>/api/login</code> route.</p>
+
+        <div class="file-label">server/server.js — add near top</div>
+        <pre>const DiscordOAuth = require('discord-oauth2');
+const oauth = new DiscordOAuth();
+
+const DISCORD_CLIENT_ID     = process.env.DISCORD_CLIENT_ID     || 'YOUR_CLIENT_ID_HERE';
+const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || 'YOUR_CLIENT_SECRET_HERE';
+const DISCORD_REDIRECT      = process.env.DISCORD_REDIRECT      || 'http://localhost:3000/auth/discord/callback';</pre>
+
+        <div class="file-label">server/server.js — add routes</div>
+        <pre>// GET /auth/discord
+// Redirects the user to Discord's OAuth2 authorisation page.
+app.get('/auth/discord', (req, res) => {
+    const url = oauth.generateAuthUrl({
+        scope:       ['identify', 'email'],
+        clientId:    DISCORD_CLIENT_ID,
+        redirectUri: DISCORD_REDIRECT
+    });
+    res.redirect(url);
+});
+
+// GET /auth/discord/callback
+// Discord redirects here after the user approves.
+app.get('/auth/discord/callback', async (req, res) => {
+    const { code } = req.query;
+    if (!code) return res.redirect('/?error=no_code');
+
+    try {
+        // Exchange code for access token
+        const tokens = await oauth.tokenRequest({
+            clientId:     DISCORD_CLIENT_ID,
+            clientSecret: DISCORD_CLIENT_SECRET,
+            redirectUri:  DISCORD_REDIRECT,
+            code,
+            scope:        ['identify', 'email'],
+            grantType:    'authorization_code'
+        });
+
+        // Fetch user profile from Discord
+        const user = await oauth.getUser(tokens.access_token);
+
+        // Create session — same structure as email/password login
+        req.session.user = {
+            id:       'discord_' + user.id,
+            username: user.username,
+            email:    user.email || null
+        };
+
+        // Redirect back to the front page — session check in Index.html handles the rest
+        res.redirect('/');
+    } catch (err) {
+        console.error('[discord oauth]', err);
+        res.redirect('/?error=discord_failed');
+    }
+});</pre>
+
+        <div class="note">
+            <strong>Security note:</strong> Never hardcode your Client Secret in a file you commit to GitHub. Use environment variables (<code>process.env.DISCORD_CLIENT_SECRET</code>) or a <code>.env</code> file that is listed in <code>.gitignore</code>.
+        </div>
+    </div>
+</div>
+
+<!-- ── STEP 4 ────────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">Step 4 — Update Index.html with your Client ID</div>
+    <div class="card-body">
+        <p>In <code>Index.html</code>, find this section in the <code>&lt;script&gt;</code> block:</p>
+        <pre>var DISCORD_CLIENT_ID = 'YOUR_CLIENT_ID_HERE';
+var DISCORD_REDIRECT   = window.location.origin + '/auth/discord/callback';</pre>
+        <p>Replace <code>YOUR_CLIENT_ID_HERE</code> with your actual Discord Client ID:</p>
+        <pre>var DISCORD_CLIENT_ID = '123456789012345678';
+var DISCORD_REDIRECT   = window.location.origin + '/auth/discord/callback';</pre>
+        <div class="note">The Client ID is <strong>not</strong> a secret — it's safe to put in frontend code. Never put the Client Secret here.</div>
+    </div>
+</div>
+
+<!-- ── STEP 5 ────────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">Step 5 — Add a .env file for your secrets (recommended)</div>
+    <div class="card-body">
+        <p>Create a file called <code>.env</code> inside the <code>server</code> folder:</p>
+        <div class="file-label">server/.env</div>
+        <pre>DISCORD_CLIENT_ID=123456789012345678
+DISCORD_CLIENT_SECRET=your_secret_here
+DISCORD_REDIRECT=http://localhost:3000/auth/discord/callback
+SESSION_SECRET=change-this-to-a-random-string</pre>
+
+        <p>Then install <code>dotenv</code> and load it at the very top of <code>server.js</code>:</p>
+        <pre>npm install dotenv</pre>
+        <div class="file-label">server/server.js — first line</div>
+        <pre>require('dotenv').config();</pre>
+
+        <p>Add <code>.env</code> to your <code>.gitignore</code> so it never gets committed:</p>
+        <div class="file-label">.gitignore</div>
+        <pre>server/.env
+server/node_modules/</pre>
+    </div>
+</div>
+
+<!-- ── STEP 6 ────────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">Step 6 — Serve Index.html from the Express server</div>
+    <div class="card-body">
+        <p>For the Discord redirect to work, the browser and the API need to be on the same origin. The easiest way is to have Express serve your static files:</p>
+        <div class="file-label">server/server.js — add after your middleware setup</div>
+        <pre>const path = require('path');
+
+// Serve the www folder as static files
+app.use(express.static(path.join(__dirname, '..')));
+
+// Fallback — serve Index.html for any unmatched route
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'Index.html'));
+});</pre>
+        <p>Then visit <code>http://localhost:3000</code> instead of opening <code>Index.html</code> directly as a file.</p>
+        <div class="note">The <code>app.get('*')</code> fallback must go <strong>after</strong> all your API routes, otherwise it will intercept them.</div>
+    </div>
+</div>
+
+<!-- ── TESTING ────────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">✅ Testing the flow</div>
+    <div class="card-body">
+        <ol>
+            <li>Start the server: <code>cd server &amp;&amp; node server.js</code></li>
+            <li>Open <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></li>
+            <li>Click <strong>Sign in with Discord</strong></li>
+            <li>Approve on Discord's page</li>
+            <li>You should be redirected back and logged in automatically</li>
+        </ol>
+        <p>If something goes wrong, check the server terminal for the <code>[discord oauth]</code> error log.</p>
+    </div>
+</div>
+
+<!-- ── NOTES ─────────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">📝 Notes for later</div>
+    <div class="card-body">
+        <ul>
+            <li>When you deploy to a live domain, add the production callback URL to your Discord app's Redirect list and update the <code>DISCORD_REDIRECT</code> environment variable.</li>
+            <li>Discord usernames no longer have discriminators (no <code>#1234</code>) — the <code>user.username</code> field returns the new unique username format.</li>
+            <li>Not all Discord users have a verified email — <code>user.email</code> may be <code>null</code>. The current code handles this gracefully.</li>
+            <li>To store Discord users in the MySQL database later, check for an existing row by <code>discord_id</code> and upsert rather than using email as the unique key.</li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>
