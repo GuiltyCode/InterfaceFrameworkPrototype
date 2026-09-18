@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="css/w95.css">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: #c0c0c0;
+            overflow-y: auto;
+        }
+        body {
+            font-family: 'Windows 95', sans-serif;
+            font-size: 0.82rem;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* ── Top bar: add-friend (left) + username (right) ────────────────── */
+        .fr-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 2px inset #888;
+            background: #fff;
+            padding: 6px 8px;
+            margin-bottom: 10px;
+        }
+        .fr-username {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        h6 {
+            background: #000181;
+            color: #fff;
+            padding: 2px 6px;
+            margin: 10px 0 6px;
+            font-size: 0.8rem;
+            font-family: 'Windows 95', sans-serif;
+        }
+
+        /* ── List rows ────────────────────────────────────────────────────── */
+        .fr-list { border: 2px inset #888; background: #fff; min-height: 40px; }
+        .fr-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .fr-row:last-child { border-bottom: none; }
+        .fr-name {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+        }
+        .fr-status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #888; flex-shrink: 0;
+        }
+        .fr-empty { padding: 8px; color: #888; font-style: italic; }
+
+        /* Action button group — spaced apart to prevent mistaps */
+        .fr-actions {
+            display: flex;
+            align-items: center;
+            gap: 18px;          /* generous gap between invite and remove */
+            flex-shrink: 0;
+        }
+        .fr-btn {
+            font-family: 'Windows 95', sans-serif;
+            font-size: 0.75rem;
+            min-width: 26px;
+            padding: 2px 8px;
+            cursor: pointer;
+        }
+        .fr-btn-invite { color: #006400; white-space: nowrap; }
+        .fr-btn-remove { color: #c00; font-weight: bold; }
+
+        .fr-error { color: #c00; font-size: 0.78rem; display: none; margin-top: 4px; }
+        .muted { color: #666; font-size: 0.78rem; }
+    </style>
+</head>
+<body>
+    <div id="friends-body">
+        <p class="muted">Loading...</p>
+    </div>
+
+    <script>
+    (function () {
+        var API = '';  // same origin
+
+        function esc(s) {
+            return String(s || '').replace(/[&<>"']/g, function (c) {
+                return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+            });
+        }
+
+        function render(me, data) {
+            var html = '';
+
+            // ── Top bar ──
+            html += '<div class="fr-topbar">';
+            html += '<button class="btn btn-sm btn-primary border-dark" onclick="addFriend()">';
+            html += '<span class="btn-text">➕ Add Friend</span></button>';
+            html += '<span class="fr-username">👤 ' + esc(me ? me.username : '—') + '</span>';
+            html += '</div>';
+
+            html += '<p class="fr-error" id="fr-error"></p>';
+
+            // ── Incoming requests ──
+            if (data.incoming && data.incoming.length) {
+                html += '<h6>📥 Friend Requests</h6>';
+                html += '<div class="fr-list">';
+                data.incoming.forEach(function (r) {
+                    html += '<div class="fr-row">';
+                    html += '<span class="fr-name">' + esc(r.username) + '</span>';
+                    html += '<span>';
+                    html += '<button class="fr-btn" title="Accept" onclick="acceptFriend(' + r.rel_id + ')">✓</button>';
+                    html += '<button class="fr-btn fr-btn-remove" title="Decline" onclick="removeFriend(' + r.rel_id + ')">−</button>';
+                    html += '</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+
+            // ── Friends list ──
+            html += '<h6>🤝 Friends</h6>';
+            html += '<div class="fr-list">';
+            if (data.friends && data.friends.length) {
+                data.friends.forEach(function (f) {
+                    html += '<div class="fr-row">';
+                    html += '<span class="fr-name"><span class="fr-status-dot"></span>' + esc(f.username) + '</span>';
+                    html += '<span class="fr-actions">';
+                    html += '<button class="fr-btn fr-btn-invite" title="Invite to squad" '
+                          + 'onclick="inviteToSquad(\'' + esc(f.username).replace(/'/g, "\\'") + '\')">➕ Squad</button>';
+                    html += '<button class="fr-btn fr-btn-remove" title="Remove friend" '
+                          + 'onclick="removeFriend(' + f.rel_id + ', \'' + esc(f.username).replace(/'/g, "\\'") + '\')">−</button>';
+                    html += '</span>';
+                    html += '</div>';
+                });
+            } else {
+                html += '<div class="fr-empty">No friends yet. Add one with the button above.</div>';
+            }
+            html += '</div>';
+
+            // ── Outgoing (pending) requests ──
+            if (data.outgoing && data.outgoing.length) {
+                html += '<h6>📤 Pending Sent</h6>';
+                html += '<div class="fr-list">';
+                data.outgoing.forEach(function (r) {
+                    html += '<div class="fr-row">';
+                    html += '<span class="fr-name muted">' + esc(r.username) + ' <em>(pending)</em></span>';
+                    html += '<button class="fr-btn fr-btn-remove" title="Cancel request" onclick="removeFriend(' + r.rel_id + ')">−</button>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+
+            document.getElementById('friends-body').innerHTML = html;
+        }
+
+        function showError(msg) {
+            var el = document.getElementById('fr-error');
+            if (el) { el.textContent = msg; el.style.display = 'block'; }
+        }
+
+        // ── Actions ────────────────────────────────────────────────────────
+
+        window.addFriend = function () {
+            var name = prompt('Enter the username of the player to add:');
+            if (!name || !name.trim()) return;
+            fetch(API + '/api/social/friends/request', {
+                method:      'POST',
+                credentials: 'include',
+                headers:     { 'Content-Type': 'application/json' },
+                body:        JSON.stringify({ username: name.trim() })
+            })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+            .then(function (res) {
+                if (!res.ok) { showError(res.data.error || 'Could not send request.'); return; }
+                window.refreshFriends();
+            })
+            .catch(function () { showError('Could not reach the server.'); });
+        };
+
+        window.acceptFriend = function (relId) {
+            fetch(API + '/api/social/friends/accept', {
+                method:      'POST',
+                credentials: 'include',
+                headers:     { 'Content-Type': 'application/json' },
+                body:        JSON.stringify({ relId: relId })
+            })
+            .then(function () { window.refreshFriends(); })
+            .catch(function () { showError('Could not reach the server.'); });
+        };
+
+        window.removeFriend = function (relId, name) {
+            // Confirmation only for actual friends (name provided).
+            // Request accept/decline/cancel buttons pass no name and skip the prompt.
+            if (name && !confirm('Remove ' + name + ' from your friends list?')) return;
+            fetch(API + '/api/social/friends/remove', {
+                method:      'POST',
+                credentials: 'include',
+                headers:     { 'Content-Type': 'application/json' },
+                body:        JSON.stringify({ relId: relId })
+            })
+            .then(function () { window.refreshFriends(); })
+            .catch(function () { showError('Could not reach the server.'); });
+        };
+
+        window.inviteToSquad = function (username) {
+            fetch(API + '/api/social/squad/invite', {
+                method:      'POST',
+                credentials: 'include',
+                headers:     { 'Content-Type': 'application/json' },
+                body:        JSON.stringify({ username: username })
+            })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+            .then(function (res) {
+                if (!res.ok) { showError(res.data.error || 'Could not send squad invite.'); return; }
+                alert('Squad invite sent to ' + username + '.');
+            })
+            .catch(function () { showError('Could not reach the server.'); });
+        };
+
+        // ── Load / refresh ───────────────────────────────────────────────────
+        window.refreshFriends = function () {
+            var mePromise   = fetch(API + '/api/auth/session',    { credentials: 'include' }).then(function (r) { return r.ok ? r.json() : null; });
+            var dataPromise = fetch(API + '/api/social/friends',  { credentials: 'include' }).then(function (r) { return r.ok ? r.json() : { friends: [], incoming: [], outgoing: [] }; });
+
+            Promise.all([mePromise, dataPromise])
+                .then(function (results) { render(results[0], results[1]); })
+                .catch(function () {
+                    document.getElementById('friends-body').innerHTML =
+                        '<p class="muted" style="color:#c00;">Failed to load friends list.</p>';
+                });
+        };
+
+        // ── Init ──────────────────────────────────────────────────────────────
+        if (window.parent === window) {
+            window.refreshFriends();
+        } else {
+            document.getElementById('friends-body').innerHTML =
+                '<p class="muted">Loading...</p>';
+        }
+    })();
+    </script>
+</body>
+</html>

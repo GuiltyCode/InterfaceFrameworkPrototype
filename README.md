@@ -14,6 +14,20 @@ While the Gundam UC setting drives the current build, the long-term goal is to d
 
 ---
 
+## 🖼️ Previews
+
+> These are mockups — static previews of the UI with sample data. Source files live in [`mockups/`](mockups/).
+
+### Login Page
+![Login page preview](mockups/login-preview.png)
+
+### Desktop — Character, MS Store, Squad & Friends windows
+![Desktop preview](mockups/desktop-preview.png)
+
+<sub>To (re)generate: open `mockups/login-mockup.html` and `mockups/desktop-mockup.html` in a browser, screenshot each, and save as `mockups/login-preview.png` and `mockups/desktop-preview.png`.</sub>
+
+---
+
 ## 📋 MS Store — Mobile Suit Images
 
 For each ❌ suit below, find the image on [The Gundam Wiki](https://gundam.fandom.com), right-click the main suit image → **Copy image address**, then paste it into the `img:'...'` field at the end of that suit's entry in **msstore.html**.
@@ -125,11 +139,15 @@ For each ❌ suit below, find the image on [The Gundam Wiki](https://gundam.fand
 
 | Status | Task | Notes |
 |---|---|---|
+| ❌ TODO | Locations | Build the Locations/Map system — a browsable list of Universal Century locations players can travel to, tied to the Map window. Needs backend table + API + UI. |
 | ❌ TODO | Populate Inventory — Weapons panel | Currently shows placeholder text. |
 | ❌ TODO | Populate Inventory — Armour panel | Currently shows placeholder text. |
-| ❌ TODO | Populate Map window | Currently shows placeholder text. |
+| ❌ TODO | Populate Map window | Currently shows placeholder text. Ties into the Locations task above. |
 | ❌ TODO | Replace Browser window URL | Currently points to example.com which blocks iframes. Replace with a useful internal page. |
 | ❌ TODO | MS Store suit images | 43 suits still using placeholder images. See image TODO list above. |
+| ❌ TODO | Company recruitment | Second tab in the Squad window is a stub. Wire up larger org / company recruitment. |
+| ❌ TODO | Guild / Company system | Build on the same relationship model as friends + player squads (`squads` / `squad_players` tables). |
+| ❌ TODO | Discord OAuth2 — go live | Backend routes + UI stub done. Needs a real Client ID + Secret in `server/.env`. |
 
 ---
 
@@ -147,6 +165,9 @@ For each ❌ suit below, find the image on [The Gundam Wiki](https://gundam.fand
 | ✅ DONE | Active mobile suit tracking | Equip from MS Store, reflected in Inventory and Character windows. |
 | ✅ DONE | Discord OAuth2 UI stub | Login + Register buttons on `index.html`, wired to redirect. Awaiting Client ID + backend routes to go live. |
 | ✅ DONE | Discord OAuth2 backend | Server routes `/auth/discord` and `/auth/discord/callback` implemented. See `setup/discordsetup.html`. Awaiting Client ID + Secret in `.env`. |
+| ✅ DONE | Squad window | `squad.html` — leader box, 4 NPC slots with random 5e-generated recruits, dismiss members, rename squad. NPC/Company tabs. Backend `squad_members` + `/api/character/squad`. |
+| ✅ DONE | Friends system | Mutual request/accept model. `friends.html` window (add friend, accept/decline, remove with confirmation, squad-invite button). Backend: `friends` table + `/api/social/friends/*`. |
+| ✅ DONE | Multiplayer squads | Every player owns a squad and can join one other player's as a guest. Invite / accept / leave, own squad hidden while guesting, rename endpoint. `squads`/`squad_players`/`squad_invites` + `/api/social/squad/*`. |
 
 ---
 

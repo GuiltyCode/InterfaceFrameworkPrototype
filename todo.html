@@ -197,12 +197,37 @@
     <div class="card-body">
         <table>
             <tr><th>Status</th><th>Task</th><th>Notes</th></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>Add a proper backend/database for user accounts</td><td>Currently using localStorage. Consider Node.js + MySQL when ready.</td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>Discord OAuth2 login</td><td>UI button is in place. Needs Node.js backend: create Discord app at discord.com/developers, add Client ID to Index.html, add /auth/discord and /auth/discord/callback routes to server.js using discord-oauth2 package.</td></tr>
+            <tr><td class="status-todo">❌ TODO</td><td>Locations</td><td>Build out the Locations/Map system — a browsable list of Universal Century locations players can travel to, tied to the Map window. Backend table + API + UI window.</td></tr>
+            <tr><td class="status-todo">❌ TODO</td><td>Discord OAuth2 — go live</td><td>Backend routes + UI stub are done. Just needs a real Discord Client ID + Secret in <code>server/.env</code>. See <code>setup/discordsetup.html</code>.</td></tr>
             <tr><td class="status-todo">❌ TODO</td><td>Populate Inventory — Weapons panel</td><td>Currently shows placeholder text.</td></tr>
             <tr><td class="status-todo">❌ TODO</td><td>Populate Inventory — Armour panel</td><td>Currently shows placeholder text.</td></tr>
-            <tr><td class="status-todo">❌ TODO</td><td>Populate Map window</td><td>Currently shows placeholder text.</td></tr>
+            <tr><td class="status-todo">❌ TODO</td><td>Populate Map window</td><td>Currently shows placeholder text. Ties into the Locations task above.</td></tr>
             <tr><td class="status-todo">❌ TODO</td><td>Replace Browser window URL</td><td>Currently points to example.com which blocks iframes. Replace with a useful internal page.</td></tr>
+            <tr><td class="status-todo">❌ TODO</td><td>Company recruitment</td><td>Second tab in the Squad window is a stub. Wire up larger org / company recruitment.</td></tr>
+            <tr><td class="status-todo">❌ TODO</td><td>Guild / Company system</td><td>Build on the same relationship model as friends + player squads.</td></tr>
+            <tr><td class="status-todo">❌ TODO</td><td>MS Store suit images</td><td>43 suits still use placeholder images. See the image TODO list above.</td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     SECTION 3 — Completed
+     ═══════════════════════════════════════════════════════════════════════════ -->
+
+<div class="todo-card card">
+    <div class="card-header">✅ Completed</div>
+    <div class="card-body">
+        <table>
+            <tr><th>Status</th><th>Task</th><th>Notes</th></tr>
+            <tr><td class="status-done">✅ DONE</td><td>Node.js + MySQL backend</td><td>Express server, two databases, bcrypt auth. See <code>server/</code> and <code>setup/Login.html</code>.</td></tr>
+            <tr><td class="status-done">✅ DONE</td><td>Login / Register system</td><td>Standalone <code>index.html</code> → <code>desktop.html</code> with server sessions.</td></tr>
+            <tr><td class="status-done">✅ DONE</td><td>User roles (User / Mod / Admin)</td><td>Stored in DB, returned in session. Default admin via <code>server/seed.js</code>.</td></tr>
+            <tr><td class="status-done">✅ DONE</td><td>Character system (MySQL)</td><td>Create/edit with Gundam 5e rules. Data in <code>steelfangsden_chars</code>.</td></tr>
+            <tr><td class="status-done">✅ DONE</td><td>MS Store — 50 UC suits</td><td>Filter by era/faction/rarity. Equip sets active mobile suit.</td></tr>
+            <tr><td class="status-done">✅ DONE</td><td>Squad window</td><td>NPC recruitment (random 5e NPCs), 4 slots, dismiss members, rename squad.</td></tr>
+            <tr><td class="status-done">✅ DONE</td><td>Friends system</td><td>Add/accept/remove with confirmation, squad-invite button. <code>friends.html</code> + <code>/api/social/friends/*</code>.</td></tr>
+            <tr><td class="status-done">✅ DONE</td><td>Multiplayer squads</td><td>Every player owns a squad; can join one other as guest. Invite / accept / leave. Own squad hidden while guesting.</td></tr>
+            <tr><td class="status-done">✅ DONE</td><td>Discord OAuth2 backend + UI stub</td><td>Routes and buttons in place. Awaiting credentials.</td></tr>
         </table>
     </div>
 </div>

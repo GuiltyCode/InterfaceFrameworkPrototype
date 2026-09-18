@@ -8,6 +8,7 @@ const path     = require('path');
 
 const authRouter      = require('./routes/auth');
 const characterRouter = require('./routes/character');
+const socialRouter    = require('./routes/social');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -37,6 +38,7 @@ app.use(session({
 
 app.use('/api/auth',      authRouter);
 app.use('/api/character', characterRouter);
+app.use('/api/social',    socialRouter);
 
 // ── Serve static files from the www root ─────────────────────────────────────
 // This lets the browser hit http://localhost:3000 for all pages.

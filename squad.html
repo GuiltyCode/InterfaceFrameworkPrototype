@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <!-- Win95 styles -->
+    <link type="text/css" rel="stylesheet" href="css/w95.css">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: #c0c0c0;
+            overflow-y: auto;
+        }
+        body {
+            font-family: 'Windows 95', sans-serif;
+            font-size: 0.82rem;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        h6 {
+            background: #000181;
+            color: #fff;
+            padding: 2px 6px;
+            margin: 0 0 6px;
+            font-size: 0.8rem;
+            font-family: 'Windows 95', sans-serif;
+        }
+
+        /* ── Tabs ─────────────────────────────────────────────────────────── */
+        .tab-bar {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 8px;
+        }
+        .tab-btn {
+            flex: 1;
+            font-family: 'Windows 95', sans-serif;
+            font-size: 0.78rem;
+            padding: 5px 6px;
+            background: #c0c0c0;
+            border: 2px outset #fff;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            background: #fff;
+            border: 2px inset #888;
+            font-weight: bold;
+        }
+
+        /* ── Leader box ───────────────────────────────────────────────────── */
+        .leader-box {
+            border: 2px inset #888;
+            background: #fff;
+            padding: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 12px;
+        }
+        .leader-col { flex: 1; min-width: 0; }
+        .leader-col.left  { border-right: 2px groove #ccc; padding-right: 12px; }
+
+        .char-table td { padding: 2px 6px; vertical-align: top; }
+        .char-table td:first-child { font-weight: bold; white-space: nowrap; width: 100px; }
+
+        .ms-stat-row {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 4px; margin: 4px 0;
+        }
+        .ms-stat {
+            background: #f4f4f4; border: 1px inset #999;
+            text-align: center; padding: 2px;
+        }
+        .ms-stat .lbl { font-size: 0.6rem; color: #444; }
+        .ms-stat .val { font-size: 0.85rem; font-weight: bold; }
+        .ms-tag {
+            display: inline-block; background: #000181; color: #fff;
+            padding: 1px 5px; margin: 1px; font-size: 0.65rem;
+        }
+
+        /* ── Squad member slots ───────────────────────────────────────────── */
+        .squad-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .squad-slot {
+            border: 2px inset #888;
+            background: #e8e8e8;
+            min-height: 110px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .squad-slot.empty {
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-style: italic;
+            text-align: center;
+        }
+        .squad-slot .slot-name { font-weight: bold; margin-bottom: 4px; padding-right: 22px; }
+        .squad-slot .slot-line { font-size: 0.72rem; margin-bottom: 2px; }
+        .slot-remove {
+            position: absolute;
+            top: 4px; right: 4px;
+            width: 20px; height: 20px;
+            padding: 0; line-height: 1;
+            font-weight: bold; color: #c00;
+            cursor: pointer;
+        }
+
+        /* ── NPC recruitment cards ────────────────────────────────────────── */
+        .recruit-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .npc-card {
+            border: 2px inset #888;
+            background: #fff;
+            padding: 6px 8px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .npc-info { min-width: 0; }
+        .npc-name { font-weight: bold; }
+        .npc-line { font-size: 0.72rem; color: #333; }
+        .npc-abils { font-size: 0.68rem; color: #555; margin-top: 2px; }
+
+        .muted { color: #666; font-size: 0.78rem; }
+        .stub-box {
+            border: 2px inset #888;
+            background: #fff;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="squad-root">
+        <p class="muted">Loading...</p>
+    </div>
+
+    <script>
+    (function () {
+
+        var API = '';  // same origin
+
+        var ABILITY_NAMES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+        var CLASSES = [
+            'Cyber-Newtype', 'Executant', 'Fighter', 'Infiltrator',
+            'Newtype', 'Scout', 'Sentinel', 'Engineer'
+        ];
+        var RACES = ['Spacenoid', 'Earthnoid'];
+        var MAX_SQUAD = 4;
+
+        // Gundam-universe first + last names for random NPC generation
+        var FIRST_NAMES = [
+            'Amuro','Char','Bright','Kai','Hayato','Sayla','Ryu','Sleggar','Kamille',
+            'Emma','Fa','Quattro','Bernard','Christina','Kou','Nina','South','Anavel',
+            'Norris','Aina','Shiro','Karen','Terry','Monsha','Chris','Judau','Roux',
+            'Elle','Beecha','Mondo','Iino','Banagher','Mineva','Riddhe','Suberoa'
+        ];
+        var LAST_NAMES = [
+            'Ray','Aznable','Noa','Shiden','Kobayashi','Mass','Jose','Law','Bidan',
+            'Sheen','Yuiry','Bajeena','Wiseman','Mackenzie','Uraki','Purpleton','Burning',
+            'Gato','Packard','Sahalin','Joshua','Sanders','Kanata','Rockwell','Daga',
+            'Ashta','Louka','Vialeto','Agu','Muller','Links','Zabi','Marcenas','Douglas'
+        ];
+
+        var MS_DATA_MAP = (function () {
+            var list = [
+                { name:'MS-06F Zaku II',               ap:65,  threshold:10, evasion:10, armorDie:'1d6',  str:14, dex:10, con:14, tags:['General MS'] },
+                { name:'MS-06S Zaku II Commander Type', ap:70,  threshold:10, evasion:12, armorDie:'1d6',  str:14, dex:12, con:14, tags:['General MS'] },
+                { name:'MS-05B Zaku I',                 ap:60,  threshold:8,  evasion:9,  armorDie:'1d6',  str:12, dex:10, con:12, tags:['General MS'] },
+                { name:'RX-78-2 Gundam',                ap:90,  threshold:15, evasion:14, armorDie:'1d8',  str:16, dex:14, con:16, tags:['General MS','Gundam MS'] },
+                { name:'RGM-79 GM',                     ap:65,  threshold:10, evasion:11, armorDie:'1d6',  str:12, dex:10, con:12, tags:['General MS'] },
+                { name:'MS-07B Gouf',                   ap:72,  threshold:10, evasion:12, armorDie:'1d6',  str:14, dex:12, con:14, tags:['General MS'] },
+                { name:'MS-09B Dom',                    ap:80,  threshold:12, evasion:11, armorDie:'1d8',  str:16, dex:10, con:16, tags:['General MS'] },
+                { name:'MS-14A Gelgoog',                ap:80,  threshold:12, evasion:13, armorDie:'1d8',  str:14, dex:12, con:14, tags:['General MS'] },
+                { name:"MSM-07 Z'Gok",                  ap:75,  threshold:10, evasion:11, armorDie:'1d6',  str:16, dex:10, con:16, tags:['General MS','Amphibious MS'] },
+                { name:'MS-09R Rick Dom',               ap:78,  threshold:12, evasion:12, armorDie:'1d8',  str:16, dex:10, con:16, tags:['General MS'] },
+                { name:'RX-77-2 Guncannon',             ap:85,  threshold:14, evasion:11, armorDie:'1d8',  str:14, dex:10, con:16, tags:['General MS','Gundam MS'] },
+                { name:'MSM-04 Acguy',                  ap:65,  threshold:10, evasion:12, armorDie:'1d6',  str:14, dex:12, con:14, tags:['General MS','Amphibious MS'] }
+            ];
+            var map = {};
+            list.forEach(function (s) { map[s.name] = s; });
+            return map;
+        })();
+
+        function modStr(score) {
+            var m = Math.floor((score - 10) / 2);
+            return (m >= 0 ? '+' : '') + m;
+        }
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+                return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+            });
+        }
+        function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function roll4d6drop1() {
+            var d = [0,0,0,0].map(function () { return Math.ceil(Math.random() * 6); });
+            d.sort(function (a, b) { return a - b; });
+            return d[1] + d[2] + d[3];
+        }
+
+        // ── State ─────────────────────────────────────────────────────────────
+        var _tab = 'npc';         // 'npc' | 'company'
+        var _char = null;         // leader character
+        var _squad = [null,null,null,null];
+        var _npcPool = [];        // currently generated recruit candidates
+        var _player = null;       // player-squad state from /api/social/squad
+                                  // { squad, members, invites, isGuest }
+
+        // ── Generate 5 random NPCs ──────────────────────────────────────────────
+        function generateNPCs() {
+            var pool = [];
+            for (var i = 0; i < 5; i++) {
+                var abilities = {};
+                ABILITY_NAMES.forEach(function (ab) { abilities[ab] = roll4d6drop1(); });
+                var cls    = pick(CLASSES);
+                var conMod = Math.floor((abilities.CON - 10) / 2);
+                var hitDice = {
+                    'Cyber-Newtype':6,'Executant':8,'Fighter':10,'Infiltrator':8,
+                    'Newtype':8,'Scout':10,'Sentinel':10,'Engineer':8
+                };
+                pool.push({
+                    name:      pick(FIRST_NAMES) + ' ' + pick(LAST_NAMES),
+                    race:      pick(RACES),
+                    cls:       cls,
+                    level:     1,
+                    abilities: abilities,
+                    hp:        Math.max(1, (hitDice[cls] || 8) + conMod),
+                    ap:        10 + conMod,
+                    mobileSuit: null
+                });
+            }
+            _npcPool = pool;
+        }
+
+        // ── Render everything ───────────────────────────────────────────────────
+        function render() {
+            var html = '';
+
+            var isGuest = _player && _player.isGuest;
+
+            // Pending squad invites (always shown at the very top if any)
+            html += renderInvites();
+
+            if (isGuest) {
+                // ── GUEST VIEW: in someone else's squad ──
+                // The player's own squad is hidden entirely.
+                html += renderGuestSquad();
+            } else {
+                // ── OWN SQUAD VIEW ──
+                // Tabs
+                html += '<div class="tab-bar">';
+                html += '<div class="tab-btn ' + (_tab === 'npc' ? 'active' : '') + '" onclick="setTab(\'npc\')">👥 NPC Recruitment</div>';
+                html += '<div class="tab-btn ' + (_tab === 'company' ? 'active' : '') + '" onclick="setTab(\'company\')">🏢 Company Recruitment</div>';
+                html += '</div>';
+
+                html += renderSquadName();
+                html += renderLeaderBox();
+                html += renderSquadSlots();
+
+                if (_tab === 'npc') {
+                    html += renderNPCTab();
+                } else {
+                    html += renderCompanyTab();
+                }
+            }
+
+            document.getElementById('squad-root').innerHTML = html;
+        }
+
+        // ── Squad name + rename (own-squad view) ────────────────────────────────
+        function renderSquadName() {
+            var name = (_player && _player.squad) ? _player.squad.name : 'My Squad';
+            var html = '<div style="display:flex;align-items:center;justify-content:space-between;'
+                     + 'border:2px inset #888;background:#fff;padding:6px 8px;margin-bottom:10px;">';
+            html += '<span style="font-weight:bold;">🎖️ ' + esc(name) + '</span>';
+            html += '<button class="btn btn-sm btn-primary border-dark" onclick="renameSquad()">';
+            html += '<span class="btn-text">✏️ Rename</span></button>';
+            html += '</div>';
+            return html;
+        }
+
+        // ── Pending squad invites ───────────────────────────────────────────────
+        function renderInvites() {
+            if (!_player || !_player.invites || !_player.invites.length) return '';
+            var html = '<h6>📨 Squad Invites</h6>';
+            html += '<div style="border:2px inset #888;background:#fff;margin-bottom:12px;">';
+            _player.invites.forEach(function (inv) {
+                html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-bottom:1px solid #ddd;">';
+                html += '<span><strong>' + esc(inv.squad_name) + '</strong> — from ' + esc(inv.inviter) + '</span>';
+                html += '<span style="display:flex;gap:12px;">';
+                html += '<button class="btn btn-sm btn-primary border-dark" onclick="respondInvite(' + inv.invite_id + ',true)"><span class="btn-text">✓ Join</span></button>';
+                html += '<button class="btn btn-sm" style="color:#c00;" onclick="respondInvite(' + inv.invite_id + ',false)"><span class="btn-text">✕ Decline</span></button>';
+                html += '</span>';
+                html += '</div>';
+            });
+            html += '</div>';
+            return html;
+        }
+
+        // ── Guest squad view (in another player's squad) ────────────────────────
+        function renderGuestSquad() {
+            var sq = _player.squad;
+            var html = '<h6>🎖️ ' + esc(sq.name) + '</h6>';
+            html += '<div class="leader-box" style="display:block;">';
+            html += '<p class="muted" style="margin:0 0 8px;">You are a member of this squad. Your own squad is set aside while you\'re here.</p>';
+
+            html += '<strong>Members</strong>';
+            html += '<div style="border:2px inset #888;background:#fff;margin-top:4px;">';
+            (_player.members || []).forEach(function (m) {
+                html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px;border-bottom:1px solid #eee;">';
+                html += '<span>' + esc(m.username) + '</span>';
+                html += '<span class="ms-tag">' + esc(m.role) + '</span>';
+                html += '</div>';
+            });
+            html += '</div>';
+            html += '</div>';
+
+            // Leave button at the bottom
+            html += '<div style="text-align:center;margin-top:8px;">';
+            html += '<button class="btn btn-primary border-dark" style="background:#a00;" onclick="leaveSquad()">';
+            html += '<span class="btn-text">🚪 Leave Squad</span></button>';
+            html += '</div>';
+            return html;
+        }
+
+        function renderLeaderBox() {
+            var ch = _char;
+            var html = '<h6>🎖️ Squad Leader</h6>';
+            html += '<div class="leader-box">';
+
+            // Left — character
+            html += '<div class="leader-col left">';
+            if (ch) {
+                html += '<strong style="font-size:0.95rem;">' + esc(ch.name) + '</strong>';
+                html += '<table class="char-table" style="width:100%;margin-top:4px;">';
+                html += '<tr><td>Class:</td><td>' + esc(ch.cls) + '</td></tr>';
+                html += '<tr><td>Race:</td><td>' + esc(ch.race) + '</td></tr>';
+                html += '<tr><td>Level:</td><td>' + ch.level + '</td></tr>';
+                html += '<tr><td>HP:</td><td>' + ch.hp + '</td></tr>';
+                html += '<tr><td>Armor Pts:</td><td>' + ch.ap + '</td></tr>';
+                html += '</table>';
+                html += '<div class="ms-stat-row" style="grid-template-columns:repeat(6,1fr);margin-top:6px;">';
+                ABILITY_NAMES.forEach(function (ab) {
+                    var score = ch.abilities[ab];
+                    html += '<div class="ms-stat"><div class="lbl">' + ab + '</div>'
+                          + '<div class="val">' + score + '</div>'
+                          + '<div class="lbl" style="color:#000181;">' + modStr(score) + '</div></div>';
+                });
+                html += '</div>';
+            } else {
+                html += '<p class="muted">No character yet. Create one in the Character window first.</p>';
+            }
+            html += '</div>';
+
+            // Right — mobile suit
+            html += '<div class="leader-col right">';
+            html += '<strong style="font-size:0.95rem;">🤖 Active Mobile Suit</strong>';
+            var suit = ch && ch.mobileSuit ? MS_DATA_MAP[ch.mobileSuit] : null;
+            if (ch && ch.mobileSuit) {
+                html += '<div style="margin:4px 0;font-weight:bold;">' + esc(ch.mobileSuit) + '</div>';
+                if (suit) {
+                    suit.tags.forEach(function (t) { html += '<span class="ms-tag">' + t + '</span>'; });
+                    html += '<div class="ms-stat-row">';
+                    html += '<div class="ms-stat"><div class="lbl">Armor</div><div class="val">' + suit.ap + ' (T' + suit.threshold + ')</div></div>';
+                    html += '<div class="ms-stat"><div class="lbl">Evasion</div><div class="val">' + suit.evasion + '</div></div>';
+                    html += '<div class="ms-stat"><div class="lbl">Armor Die</div><div class="val">' + suit.armorDie + '</div></div>';
+                    html += '</div>';
+                    html += '<div class="ms-stat-row">';
+                    html += '<div class="ms-stat"><div class="lbl">STR</div><div class="val">' + suit.str + '</div></div>';
+                    html += '<div class="ms-stat"><div class="lbl">DEX</div><div class="val">' + suit.dex + '</div></div>';
+                    html += '<div class="ms-stat"><div class="lbl">CON</div><div class="val">' + suit.con + '</div></div>';
+                    html += '</div>';
+                } else {
+                    html += '<p class="muted">Stats unavailable for this suit.</p>';
+                }
+            } else {
+                html += '<p class="muted">No active mobile suit. Requisition one from the MS Store.</p>';
+            }
+            html += '</div>';
+
+            html += '</div>';
+            return html;
+        }
+
+        function renderSquadSlots() {
+            var html = '<h6>👥 Squad Members</h6>';
+            html += '<div class="squad-grid">';
+            for (var i = 0; i < MAX_SQUAD; i++) {
+                var member = _squad[i];
+                if (member) {
+                    html += '<div class="squad-slot">';
+                    html += '<button class="btn btn-sm slot-remove" title="Dismiss member" onclick="dismissMember(' + i + ')">−</button>';
+                    html += '<div class="slot-name">' + esc(member.name) + '</div>';
+                    html += '<div class="slot-line">Class: ' + esc(member.cls || '—') + '</div>';
+                    html += '<div class="slot-line">Race: ' + esc(member.race || '—') + '</div>';
+                    html += '<div class="slot-line">HP: ' + (member.hp || '—') + ' · AP: ' + (member.ap || '—') + '</div>';
+                    html += '</div>';
+                } else {
+                    html += '<div class="squad-slot empty">';
+                    html += '<div>Empty Slot ' + (i + 1) + '</div>';
+                    html += '<div style="font-size:0.68rem;">Recruit a member</div>';
+                    html += '</div>';
+                }
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function squadIsFull() {
+            return _squad.every(function (m) { return m !== null; });
+        }
+
+        function renderNPCTab() {
+            var html = '<div class="recruit-bar">';
+            html += '<h6 style="margin:0;flex:1;">🎲 Available Recruits</h6>';
+            html += '<button class="btn btn-sm btn-primary border-dark" onclick="rerollNPCs()">';
+            html += '<span class="btn-text">🔄 Refresh</span></button>';
+            html += '</div>';
+
+            var full = squadIsFull();
+            if (full) {
+                html += '<p class="muted">Your squad is full (4/4). Dismiss a member to recruit more.</p>';
+            }
+
+            _npcPool.forEach(function (npc, idx) {
+                html += '<div class="npc-card">';
+                html += '<div class="npc-info">';
+                html += '<div class="npc-name">' + esc(npc.name) + '</div>';
+                html += '<div class="npc-line">' + esc(npc.cls) + ' · ' + esc(npc.race)
+                      + ' · HP ' + npc.hp + ' · AP ' + npc.ap + '</div>';
+                html += '<div class="npc-abils">';
+                html += ABILITY_NAMES.map(function (ab) {
+                    return ab + ' ' + npc.abilities[ab] + ' (' + modStr(npc.abilities[ab]) + ')';
+                }).join(' · ');
+                html += '</div>';
+                html += '</div>';
+                html += '<button class="btn btn-sm btn-primary border-dark" ' + (full ? 'disabled' : '')
+                      + ' onclick="recruitNPC(' + idx + ')"><span class="btn-text">Recruit</span></button>';
+                html += '</div>';
+            });
+
+            return html;
+        }
+
+        function renderCompanyTab() {
+            var html = '<h6>🏢 Company Recruitment</h6>';
+            html += '<div class="stub-box">';
+            html += '<p><strong>Coming soon.</strong></p>';
+            html += '<p style="font-size:0.75rem;">Company recruitment will let you bring on real players and larger organisations. Stay tuned.</p>';
+            html += '</div>';
+            return html;
+        }
+
+        // ── Actions ──────────────────────────────────────────────────────────
+        window.setTab = function (tab) {
+            _tab = tab;
+            render();
+        };
+
+        window.respondInvite = function (inviteId, accept) {
+            fetch(API + '/api/social/squad/respond', {
+                method:      'POST',
+                credentials: 'include',
+                headers:     { 'Content-Type': 'application/json' },
+                body:        JSON.stringify({ inviteId: inviteId, accept: accept })
+            })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+            .then(function (res) {
+                if (!res.ok) { alert(res.data.error || 'Could not respond to invite.'); return; }
+                window.refreshSquad();
+            })
+            .catch(function () { alert('Could not reach the server.'); });
+        };
+
+        window.renameSquad = function () {
+            var current = (_player && _player.squad) ? _player.squad.name : '';
+            var name = prompt('Enter a new name for your squad:', current);
+            if (name === null) return;              // cancelled
+            name = name.trim();
+            if (!name) { alert('Squad name cannot be empty.'); return; }
+
+            fetch(API + '/api/social/squad/rename', {
+                method:      'POST',
+                credentials: 'include',
+                headers:     { 'Content-Type': 'application/json' },
+                body:        JSON.stringify({ name: name })
+            })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+            .then(function (res) {
+                if (!res.ok) { alert(res.data.error || 'Could not rename squad.'); return; }
+                window.refreshSquad();
+            })
+            .catch(function () { alert('Could not reach the server.'); });
+        };
+
+        window.leaveSquad = function () {
+            if (!confirm('Leave this squad and return to your own?')) return;
+            fetch(API + '/api/social/squad/leave', {
+                method:      'POST',
+                credentials: 'include'
+            })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+            .then(function (res) {
+                if (!res.ok) { alert(res.data.error || 'Could not leave squad.'); return; }
+                window.refreshSquad();
+            })
+            .catch(function () { alert('Could not reach the server.'); });
+        };
+
+        window.rerollNPCs = function () {
+            generateNPCs();
+            render();
+        };
+
+        window.recruitNPC = function (idx) {
+            var npc = _npcPool[idx];
+            if (!npc) return;
+            if (squadIsFull()) { alert('Your squad is full.'); return; }
+
+            fetch(API + '/api/character/squad/recruit', {
+                method:      'POST',
+                credentials: 'include',
+                headers:     { 'Content-Type': 'application/json' },
+                body:        JSON.stringify(npc)
+            })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+            .then(function (res) {
+                if (!res.ok) { alert(res.data.error || 'Could not recruit.'); return; }
+                // Remove the recruited NPC from the pool and reload the squad
+                _npcPool.splice(idx, 1);
+                loadSquad();
+            })
+            .catch(function () { alert('Could not reach the server.'); });
+        };
+
+        window.dismissMember = function (slot) {
+            var member = _squad[slot];
+            if (!member) return;
+            if (!confirm('Dismiss ' + member.name + ' from your squad?')) return;
+
+            fetch(API + '/api/character/squad/' + slot, {
+                method:      'DELETE',
+                credentials: 'include'
+            })
+            .then(function () { loadSquad(); })
+            .catch(function () { alert('Could not reach the server.'); });
+        };
+
+        // ── Load squad members from API ─────────────────────────────────────────
+        function loadSquad() {
+            fetch(API + '/api/character/squad', { credentials: 'include' })
+                .then(function (r) { return r.ok ? r.json() : [null,null,null,null]; })
+                .then(function (squad) {
+                    _squad = Array.isArray(squad) ? squad : [null,null,null,null];
+                    render();
+                })
+                .catch(function () { render(); });
+        }
+
+        // ── Full refresh (character + NPC squad + player squad) ─────────────────
+        window.refreshSquad = function () {
+            if (_npcPool.length === 0) generateNPCs();
+
+            Promise.all([
+                fetch(API + '/api/character',        { credentials: 'include' }).then(function (r) { return r.ok ? r.json() : null; }),
+                fetch(API + '/api/character/squad',  { credentials: 'include' }).then(function (r) { return r.ok ? r.json() : [null,null,null,null]; }),
+                fetch(API + '/api/social/squad',     { credentials: 'include' }).then(function (r) { return r.ok ? r.json() : null; })
+            ])
+            .then(function (results) {
+                _char   = results[0];
+                _squad  = Array.isArray(results[1]) ? results[1] : [null,null,null,null];
+                _player = results[2];
+                render();
+            })
+            .catch(function () {
+                document.getElementById('squad-root').innerHTML =
+                    '<p class="muted" style="color:#c00;">Failed to load squad.</p>';
+            });
+        };
+
+        // ── Init ──────────────────────────────────────────────────────────────
+        if (window.parent === window) {
+            window.refreshSquad();
+        } else {
+            document.getElementById('squad-root').innerHTML =
+                '<p class="muted">Loading...</p>';
+        }
+
+    })();
+    </script>
+</body>
+</html>

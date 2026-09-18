@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login System Setup — SteelfangsDen</title>
+    <link type="text/css" rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="../css/w95.css">
+    <style>
+        body {
+            background: #008081;
+            font-family: 'Windows 95', sans-serif;
+            padding: 20px;
+        }
+        .setup-card {
+            background: #c0c0c0;
+            border: none;
+            margin-bottom: 24px;
+        }
+        .setup-card .card-header {
+            background: #000181;
+            color: #fff;
+            font-size: 0.9rem;
+            padding: 5px 10px;
+        }
+        .setup-card .card-body {
+            padding: 14px;
+            font-size: 0.82rem;
+        }
+        h1 { color: #fff; font-size: 1.1rem; margin-bottom: 16px; }
+        h2 { font-size: 0.9rem; margin: 0 0 8px; }
+        ol, ul { padding-left: 18px; margin-bottom: 10px; }
+        li { margin-bottom: 4px; }
+        code, pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 0.78rem;
+            border: 1px solid #444;
+        }
+        code { padding: 1px 5px; display: inline-block; }
+        pre {
+            padding: 10px 12px;
+            overflow-x: auto;
+            margin: 8px 0;
+            white-space: pre;
+        }
+        .file-label {
+            display: inline-block;
+            background: #444;
+            color: #fff;
+            padding: 1px 6px;
+            font-size: 0.7rem;
+            margin-bottom: 4px;
+        }
+        .note {
+            background: #fffbe6;
+            border-left: 3px solid #cc0;
+            padding: 6px 10px;
+            font-size: 0.78rem;
+            margin: 8px 0;
+        }
+        .warn {
+            background: #fff0f0;
+            border-left: 3px solid #c00;
+            padding: 6px 10px;
+            font-size: 0.78rem;
+            margin: 8px 0;
+        }
+        a { color: #000181; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin: 8px 0; }
+        th { background: #000181; color: #fff; padding: 4px 8px; text-align: left; }
+        td { padding: 4px 8px; border-bottom: 1px solid #aaa; }
+        tr:nth-child(even) td { background: #d4d0c8; }
+    </style>
+</head>
+<body>
+
+<h1>🔧 Login System — Backend Setup Guide</h1>
+
+<!-- ── OVERVIEW ──────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">📋 Overview</div>
+    <div class="card-body">
+        <p>The login and registration system uses a <strong>Node.js + Express</strong> backend with a <strong>MySQL</strong> database. Passwords are stored as bcrypt hashes — never plain text.</p>
+        <p><strong>Architecture:</strong></p>
+        <ul>
+            <li><code>index.html</code> — Login / Register page (calls <code>/api/auth/login</code> and <code>/api/auth/register</code>)</li>
+            <li><code>desktop.html</code> — Main desktop (checks <code>/api/auth/session</code> on load, redirects to login if not authenticated)</li>
+            <li><code>server/server.js</code> — Express app serving static files + API routes</li>
+            <li><code>server/routes/auth.js</code> — Auth endpoints</li>
+            <li><code>server/routes/character.js</code> — Character data endpoints</li>
+            <li><code>server/db.js</code> — MySQL connection pools</li>
+        </ul>
+        <p><strong>API endpoints:</strong></p>
+        <table>
+            <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            <tr><td>POST</td><td>/api/auth/register</td><td>Create new account</td></tr>
+            <tr><td>POST</td><td>/api/auth/login</td><td>Log in</td></tr>
+            <tr><td>POST</td><td>/api/auth/logout</td><td>Log out (destroys session)</td></tr>
+            <tr><td>GET</td><td>/api/auth/session</td><td>Get current logged-in user</td></tr>
+            <tr><td>GET</td><td>/api/character</td><td>Get character data for current user</td></tr>
+            <tr><td>POST</td><td>/api/character</td><td>Create or update character</td></tr>
+            <tr><td>POST</td><td>/api/character/equip</td><td>Set or clear active mobile suit</td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- ── USER ROLES ─────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">👥 User Roles</div>
+    <div class="card-body">
+        <p>Every user account has a <strong>role</strong> stored in the <code>users.role</code> column. Three roles are available:</p>
+        <table>
+            <tr><th>Role</th><th>Description</th></tr>
+            <tr><td><strong>User</strong></td><td>Default role. All registered accounts start here.</td></tr>
+            <tr><td><strong>Mod</strong></td><td>Moderator. For future GM/moderation features.</td></tr>
+            <tr><td><strong>Admin</strong></td><td>Full administrative access. Only the seed account starts here.</td></tr>
+        </table>
+        <p>The role is returned by <code>GET /api/auth/session</code> and included in the login response, so the frontend can use it to show/hide admin features in future.</p>
+        <p>To change a user's role manually in MySQL:</p>
+        <pre>USE steelfangsden_users;
+UPDATE users SET role = 'Mod' WHERE email = 'someone@example.com';</pre>
+    </div>
+</div>
+
+<!-- ── PREREQUISITES ─────────────────────────────────────────────────────── --><div class="setup-card card">
+    <div class="card-header">Step 1 — Prerequisites</div>
+    <div class="card-body">
+        <p>Make sure you have the following installed:</p>
+        <ul>
+            <li><strong>Node.js</strong> (v18 or later) — <a href="https://nodejs.org" target="_blank">nodejs.org</a></li>
+            <li><strong>MySQL</strong> (v8 or later) — via XAMPP, WAMP, MySQL Installer, or standalone</li>
+        </ul>
+        <p>Verify both are available by running:</p>
+        <pre>node --version
+mysql --version</pre>
+    </div>
+</div>
+
+<!-- ── DATABASE SETUP ────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">Step 2 — Create the databases</div>
+    <div class="card-body">
+        <p>Run the setup SQL file against your MySQL server. This creates two databases and all required tables:</p>
+        <pre>mysql -u root -p &lt; server/setup.sql</pre>
+        <p>Or open MySQL Workbench / phpMyAdmin and paste the contents of <code>server/setup.sql</code> directly.</p>
+        <p><strong>Databases created:</strong></p>
+        <ul>
+            <li><code>steelfangsden_users</code> — user accounts (<code>users</code> table) and character index (<code>characters</code> table)</li>
+            <li><code>steelfangsden_chars</code> — full character data (<code>character_data</code> table) and inventory (<code>inventory</code> table)</li>
+        </ul>
+        <div class="note">If you get an <em>access denied</em> error, your MySQL root user may require a password or a specific host. Try: <code>mysql -u root -p -h 127.0.0.1 &lt; server/setup.sql</code></div>
+    </div>
+</div>
+
+<!-- ── ENV FILE ──────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">Step 2b — Create the default Admin account</div>
+    <div class="card-body">
+        <p>After the SQL setup, run the seed script to create the default Admin account:</p>
+        <pre>cd server
+node seed.js</pre>
+        <p>This creates the following account in <code>steelfangsden_users</code>:</p>
+        <table>
+            <tr><th>Field</th><th>Value</th></tr>
+            <tr><td>Username</td><td>Admin</td></tr>
+            <tr><td>Email</td><td>admin@steelfangsden.local</td></tr>
+            <tr><td>Password</td><td>test123</td></tr>
+            <tr><td>Role</td><td>Admin</td></tr>
+        </table>
+        <div class="warn"><strong>Change the admin password after first login.</strong> <code>test123</code> is intentionally weak and for setup only. Update it in the database or add a password-change endpoint.</div>
+        <p>The script is safe to run multiple times — it checks if the admin already exists before inserting.</p>
+        <p>To update the password manually in MySQL:</p>
+        <pre>-- Run from your terminal after npm install:
+node -e "require('bcrypt').hash('your_new_password', 12).then(h => console.log(h))"
+
+-- Then in MySQL:
+USE steelfangsden_users;
+UPDATE users SET password = 'PASTE_HASH_HERE' WHERE email = 'admin@steelfangsden.local';</pre>
+    </div>
+</div>
+
+<!-- ── ENV FILE ──────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">Step 3 — Configure environment variables</div>
+    <div class="card-body">
+        <p>Copy the example env file and fill in your values:</p>
+        <pre>copy server\.env.example server\.env</pre>
+        <p>Then open <code>server/.env</code> and edit it:</p>
+        <div class="file-label">server/.env</div>
+        <pre>DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your_mysql_password_here
+
+SESSION_SECRET=pick-a-long-random-string-here
+
+# Discord OAuth2 — leave blank until configured
+DISCORD_CLIENT_ID=
+DISCORD_CLIENT_SECRET=
+DISCORD_REDIRECT=http://localhost:3000/auth/discord/callback</pre>
+        <div class="warn"><strong>Never commit <code>.env</code> to git.</strong> It contains your database password and session secret. It is already listed in <code>.gitignore</code>.</div>
+        <div class="note">The <code>SESSION_SECRET</code> can be any long random string. Use a password manager to generate one, e.g. <code>x7Kq2#mPzL9@vRnW</code></div>
+    </div>
+</div>
+
+<!-- ── NPM INSTALL ───────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">Step 4 — Install server dependencies</div>
+    <div class="card-body">
+        <p>Navigate to the server folder and install packages:</p>
+        <pre>cd server
+npm install</pre>
+        <p>This installs:</p>
+        <table>
+            <tr><th>Package</th><th>Purpose</th></tr>
+            <tr><td>express</td><td>Web framework / API server</td></tr>
+            <tr><td>express-session</td><td>Cookie-based session management</td></tr>
+            <tr><td>mysql2</td><td>MySQL driver with Promise support</td></tr>
+            <tr><td>bcrypt</td><td>Password hashing</td></tr>
+            <tr><td>cors</td><td>Cross-origin request handling</td></tr>
+            <tr><td>dotenv</td><td>Loads <code>.env</code> file into <code>process.env</code></td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- ── START SERVER ──────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">Step 5 — Start the server</div>
+    <div class="card-body">
+        <p>From the <code>server</code> folder:</p>
+        <pre>node server.js</pre>
+        <p>You should see:</p>
+        <pre>SteelfangsDen server running on http://localhost:3000
+  Login page : http://localhost:3000/index.html
+  Desktop    : http://localhost:3000/desktop.html</pre>
+        <div class="warn"><strong>Always access the site via <code>http://localhost:3000</code></strong> — do NOT open the HTML files directly as <code>file://</code>. Cookies do not work with <code>file://</code> URLs and login will fail.</div>
+    </div>
+</div>
+
+<!-- ── TESTING ───────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">✅ Testing the login flow</div>
+    <div class="card-body">
+        <ol>
+            <li>Open <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></li>
+            <li>Click <strong>Create account</strong> and register a new user</li>
+            <li>You should be redirected to <code>desktop.html</code> automatically</li>
+            <li>Open a new tab and go to <code>http://localhost:3000</code> — you should be redirected to the desktop (session persists)</li>
+            <li>Click <strong>Log out</strong> from the System Menu — you should return to the login page</li>
+        </ol>
+        <p>If anything fails, check the server terminal for error output.</p>
+        <p>Common issues:</p>
+        <ul>
+            <li><strong>ER_ACCESS_DENIED</strong> — wrong DB_USER / DB_PASSWORD in <code>.env</code></li>
+            <li><strong>ECONNREFUSED</strong> — MySQL is not running. Start it via XAMPP/Services</li>
+            <li><strong>ER_NO_SUCH_TABLE</strong> — database setup SQL was not run. Repeat Step 2</li>
+            <li><strong>Login fails silently</strong> — you're opening the file as <code>file://</code> not <code>http://localhost:3000</code></li>
+        </ul>
+    </div>
+</div>
+
+<!-- ── DISCORD ───────────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">🔷 Discord OAuth2 Login (optional)</div>
+    <div class="card-body">
+        <p>The Discord login button is present in the UI but inactive until configured. See <a href="discordsetup.html" target="_blank">setup/discordsetup.html</a> for the full setup guide.</p>
+        <p>Short version:</p>
+        <ol>
+            <li>Create an app at <a href="https://discord.com/developers/applications" target="_blank">discord.com/developers/applications</a></li>
+            <li>Add <code>http://localhost:3000/auth/discord/callback</code> as a redirect URI</li>
+            <li>Copy the Client ID and Secret into <code>server/.env</code></li>
+            <li>Set <code>DISCORD_CLIENT_ID</code> in <code>index.html</code> as well</li>
+        </ol>
+    </div>
+</div>
+
+<!-- ── FILE STRUCTURE ────────────────────────────────────────────────────── -->
+<div class="setup-card card">
+    <div class="card-header">📁 Server file structure</div>
+    <div class="card-body">
+        <pre>server/
+  .env               ← your credentials (never commit this)
+  .env.example       ← template — commit this
+  package.json       ← dependencies
+  server.js          ← Express app entry point
+  db.js              ← MySQL connection pools
+  setup.sql          ← run once to create databases + tables
+  seed.js            ← run once to create default Admin account
+  routes/
+    auth.js          ← /api/auth/* endpoints
+    character.js     ← /api/character/* endpoints</pre>
+    </div>
+</div>
+
+</body>
+</html>

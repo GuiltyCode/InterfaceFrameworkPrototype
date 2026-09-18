@@ -113,10 +113,24 @@
     <fos-icon href="w3" name="Inventory" style="top:160px;left:20px;">🎒</fos-icon>
     <fos-icon href="w4" name="Browser"   style="top:160px;left:140px;">🌐</fos-icon>
     <fos-icon href="w5" name="MS Store"  style="top:20px;left:260px;">🤖</fos-icon>
+    <fos-icon href="w6" name="Squad"     style="top:160px;left:260px;">🎖️</fos-icon>
+    <fos-icon href="w7" name="Friends"   style="top:20px;left:380px;">🫂</fos-icon>
 
     <!-- Window 1 — Character (iframe) -->
     <fos-window name="w1" title="Character">
         <iframe id="char-iframe" src="character.html"
+                style="width:100%;height:100%;border:none;display:block;background:#c0c0c0;"></iframe>
+    </fos-window>
+
+    <!-- Window 6 — Squad (iframe) -->
+    <fos-window name="w6" title="Squad" style="width:520px;height:520px;">
+        <iframe id="squad-iframe" src="squad.html"
+                style="width:100%;height:100%;border:none;display:block;background:#c0c0c0;"></iframe>
+    </fos-window>
+
+    <!-- Window 7 — Friends (iframe) -->
+    <fos-window name="w7" title="Friends" style="width:360px;height:460px;">
+        <iframe id="friends-iframe" src="friends.html"
                 style="width:100%;height:100%;border:none;display:block;background:#c0c0c0;"></iframe>
     </fos-window>
 
@@ -223,6 +237,8 @@
             <fos-menu-item href="w3">🎒 Inventory</fos-menu-item>
             <fos-menu-item href="w4">🌐 Browser</fos-menu-item>
             <fos-menu-item href="w5">🤖 MS Store</fos-menu-item>
+            <fos-menu-item href="w6">🎖️ Squad</fos-menu-item>
+            <fos-menu-item href="w7">🫂 Friends</fos-menu-item>
             <fos-menu-item href="#">──────────</fos-menu-item>
             <fos-menu-item href="w-account" id="menu-username">👤</fos-menu-item>
             <fos-menu-item href="#" onclick="authLogout(); return false;" id="menu-logout" style="display:none;">🚪 Log out</fos-menu-item>
@@ -268,15 +284,17 @@
     function getChar(email) {
         var chars = JSON.parse(localStorage.getItem('fos_characters') || '{}');
         return chars[email] || null;
-    }    var API = '';  // same origin
+    }
 
-    function callCharIframe(fn) {
-        var frame = document.getElementById('char-iframe');
+    var API = '';  // same origin
+
+    // Call a function inside a given iframe once it's ready.
+    function callIframe(iframeId, fn) {
+        var frame = document.getElementById(iframeId);
         if (!frame) return;
         if (frame.contentWindow && typeof frame.contentWindow[fn] === 'function') {
             frame.contentWindow[fn]();
         } else {
-            // Iframe not loaded yet — wait for it
             frame.addEventListener('load', function () {
                 if (typeof frame.contentWindow[fn] === 'function') {
                     frame.contentWindow[fn]();
@@ -285,10 +303,20 @@
         }
     }
 
+    // Refresh character iframe (kept for backwards compatibility)
+    function callCharIframe(fn) { callIframe('char-iframe', fn); }
+
+    // Refresh every data-driven panel after a change
+    function refreshAllPanels() {
+        renderInvMS();
+        callIframe('char-iframe',    'refreshChar');
+        callIframe('squad-iframe',   'refreshSquad');
+        callIframe('friends-iframe', 'refreshFriends');
+    }
+
     // ── MS Store → parent callback ───────────────────────────────────────────
     window.onMSEquipped = function (suitName) {
-        renderInvMS();
-        callCharIframe('refreshChar');
+        refreshAllPanels();
     };
 
     // ── Inventory — Active Mobile Suit panel ──────────────────────────────────
@@ -400,8 +428,7 @@
             body:        JSON.stringify({ mobileSuit: null })
         })
         .then(function () {
-            renderInvMS();
-            callCharIframe('refreshChar');
+            refreshAllPanels();
         });
     };
 
@@ -434,11 +461,8 @@
             if (acctEmail)    acctEmail.textContent    = user.email;
             if (acctSince)    acctSince.textContent    = new Date().toLocaleDateString();
 
-            // Inventory panel
-            renderInvMS();
-
-            // Tell the character iframe to initialise
-            callCharIframe('refreshChar');
+            // Populate all data-driven panels
+            refreshAllPanels();
         })
         .catch(function () { window.location.replace('index.html'); });
 

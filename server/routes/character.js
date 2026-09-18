@@ -129,6 +129,32 @@ router.post('/', requireAuth, async (req, res) => {
             ]
         );
 
+        // Ensure the player has a player-squad and is its Leader.
+        // Every player always has an active squad.
+        const [[ownedSquad]] = await usersPool.execute(
+            'SELECT id FROM squads WHERE leader_id = ? LIMIT 1',
+            [userId]
+        );
+
+        if (!ownedSquad) {
+            // Only create if this user isn't already in someone else's squad.
+            const [[inSquad]] = await usersPool.execute(
+                'SELECT id FROM squad_players WHERE user_id = ? LIMIT 1',
+                [userId]
+            );
+
+            if (!inSquad) {
+                const [sq] = await usersPool.execute(
+                    'INSERT INTO squads (leader_id, name) VALUES (?, ?)',
+                    [userId, name + "'s Squad"]
+                );
+                await usersPool.execute(
+                    "INSERT INTO squad_players (squad_id, user_id, role) VALUES (?, ?, 'Leader')",
+                    [sq.insertId, userId]
+                );
+            }
+        }
+
         return res.json({ id: charId, name });
     } catch (err) {
         console.error('[character POST]', err);
@@ -159,6 +185,171 @@ router.post('/equip', requireAuth, async (req, res) => {
         return res.json({ ok: true, mobileSuit: mobileSuit || null });
     } catch (err) {
         console.error('[equip]', err);
+        return res.status(500).json({ error: 'Server error.' });
+    }
+});
+
+// ── Helper: get the logged-in user's leader character id, or null ─────────────
+async function getLeaderCharId(userId) {
+    const [[charIndex]] = await usersPool.execute(
+        'SELECT id FROM characters WHERE user_id = ? LIMIT 1',
+        [userId]
+    );
+    return charIndex ? charIndex.id : null;
+}
+
+// ── GET /api/character/squad ──────────────────────────────────────────────────
+// Returns an array of up to 4 squad members (indexed by slot), null in empty slots.
+router.get('/squad', requireAuth, async (req, res) => {
+    try {
+        const leaderId = await getLeaderCharId(req.session.user.id);
+        if (!leaderId) return res.json([null, null, null, null]);
+
+        const [rows] = await charsPool.execute(
+            'SELECT * FROM squad_members WHERE leader_character_id = ? ORDER BY slot',
+            [leaderId]
+        );
+
+        const squad = [null, null, null, null];
+        rows.forEach(function (m) {
+            if (m.slot >= 0 && m.slot < 4) {
+                squad[m.slot] = {
+                    id:         m.id,
+                    slot:       m.slot,
+                    name:       m.name,
+                    race:       m.race,
+                    cls:        m.cls,
+                    level:      m.level,
+                    hp:         m.hp,
+                    ap:         m.ap,
+                    abilities:  typeof m.abilities === 'string' ? JSON.parse(m.abilities) : m.abilities,
+                    mobileSuit: m.mobile_suit
+                };
+            }
+        });
+
+        return res.json(squad);
+    } catch (err) {
+        console.error('[squad GET]', err);
+        return res.status(500).json({ error: 'Server error.' });
+    }
+});
+
+// ── POST /api/character/squad/recruit ─────────────────────────────────────────
+// Recruit an NPC into the FIRST available slot (0..3). Server picks the slot.
+router.post('/squad/recruit', requireAuth, async (req, res) => {
+    const { name, race, cls, level, hp, ap, abilities, mobileSuit } = req.body;
+    if (!name)
+        return res.status(400).json({ error: 'name is required.' });
+
+    try {
+        const leaderId = await getLeaderCharId(req.session.user.id);
+        if (!leaderId)
+            return res.status(404).json({ error: 'Create your own character first.' });
+
+        // Find occupied slots
+        const [rows] = await charsPool.execute(
+            'SELECT slot FROM squad_members WHERE leader_character_id = ?',
+            [leaderId]
+        );
+        const used = rows.map(function (r) { return r.slot; });
+
+        let freeSlot = -1;
+        for (let s = 0; s < 4; s++) {
+            if (used.indexOf(s) === -1) { freeSlot = s; break; }
+        }
+        if (freeSlot === -1)
+            return res.status(409).json({ error: 'Squad is full (4/4).' });
+
+        await charsPool.execute(
+            `INSERT INTO squad_members
+                (leader_character_id, slot, name, race, cls, level, hp, ap, abilities, mobile_suit)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                leaderId, freeSlot, name,
+                race || 'Spacenoid',
+                cls || 'Fighter',
+                level || 1,
+                hp || 10,
+                ap || 10,
+                JSON.stringify(abilities || {}),
+                mobileSuit || null
+            ]
+        );
+
+        return res.json({ ok: true, slot: freeSlot });
+    } catch (err) {
+        console.error('[squad recruit]', err);
+        return res.status(500).json({ error: 'Server error.' });
+    }
+});
+
+// ── POST /api/character/squad ─────────────────────────────────────────────────
+// Recruit or update a squad member in a given slot (0..3).
+router.post('/squad', requireAuth, async (req, res) => {
+    const { slot, name, race, cls, level, hp, ap, abilities, mobileSuit } = req.body;
+
+    if (slot === undefined || slot < 0 || slot > 3)
+        return res.status(400).json({ error: 'slot must be 0..3.' });
+    if (!name)
+        return res.status(400).json({ error: 'name is required.' });
+
+    try {
+        const leaderId = await getLeaderCharId(req.session.user.id);
+        if (!leaderId)
+            return res.status(404).json({ error: 'Create your own character first.' });
+
+        await charsPool.execute(
+            `INSERT INTO squad_members
+                (leader_character_id, slot, name, race, cls, level, hp, ap, abilities, mobile_suit)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE
+                name        = VALUES(name),
+                race        = VALUES(race),
+                cls         = VALUES(cls),
+                level       = VALUES(level),
+                hp          = VALUES(hp),
+                ap          = VALUES(ap),
+                abilities   = VALUES(abilities),
+                mobile_suit = VALUES(mobile_suit)`,
+            [
+                leaderId, slot, name,
+                race || 'Spacenoid',
+                cls || 'Fighter',
+                level || 1,
+                hp || 10,
+                ap || 10,
+                JSON.stringify(abilities || {}),
+                mobileSuit || null
+            ]
+        );
+
+        return res.json({ ok: true, slot: slot });
+    } catch (err) {
+        console.error('[squad POST]', err);
+        return res.status(500).json({ error: 'Server error.' });
+    }
+});
+
+// ── DELETE /api/character/squad/:slot ─────────────────────────────────────────
+// Dismiss a squad member from a slot.
+router.delete('/squad/:slot', requireAuth, async (req, res) => {
+    const slot = parseInt(req.params.slot, 10);
+    if (isNaN(slot) || slot < 0 || slot > 3)
+        return res.status(400).json({ error: 'slot must be 0..3.' });
+
+    try {
+        const leaderId = await getLeaderCharId(req.session.user.id);
+        if (!leaderId) return res.json({ ok: true });
+
+        await charsPool.execute(
+            'DELETE FROM squad_members WHERE leader_character_id = ? AND slot = ?',
+            [leaderId, slot]
+        );
+
+        return res.json({ ok: true });
+    } catch (err) {
+        console.error('[squad DELETE]', err);
         return res.status(500).json({ error: 'Server error.' });
     }
 });

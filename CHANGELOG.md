@@ -1,5 +1,41 @@
 # Changelog
 
+## 2026-09-18
+
+### 🎖️ Squad System
+
+- New **Squad window** (`squad.html`) with two tabs: **NPC Recruitment** and **Company Recruitment** (stub).
+- **NPC Recruitment** — Refresh button generates 5 random NPCs with Gundam-universe names and 5e-rolled stats (4d6 drop lowest). Each has a Recruit button that fills the first free squad slot.
+- 4 squad slots with a **dismiss (−)** button and confirmation on each filled member.
+- **Rename** button for the player's own squad.
+- Backend: `squad_members` table (chars DB) + `/api/character/squad`, `/squad/recruit`, `DELETE /squad/:slot`.
+
+### 🫂 Friends System
+
+- New **Friends window** (`friends.html`): username top-right, Add Friend top-left, incoming requests, friends list, pending-sent list.
+- Each friend has a **➕ Squad invite** button and a **− remove** button, spaced apart to prevent mistaps.
+- Remove-friend now asks for confirmation.
+- Mutual request/accept model. Backend: `friends` table + `/api/social/friends/*` (request, accept, remove).
+
+### 🤝 Multiplayer Squads
+
+- Every player **owns a squad**, auto-created at character creation (self-heals via `ensureSquad`).
+- A player may **join one other player's squad** as a guest Member without disturbing their own.
+- While guesting, the player's own squad is **hidden** and a **Leave Squad** button appears.
+- `POST /squad/create` converted to **`POST /squad/rename`** (rename your own squad; leader-only).
+- Backend: `squads`, `squad_players`, `squad_invites` tables + `/api/social/squad/*` (invite, respond, leave, rename).
+- `getOwnSquad` / `getActiveSquad` helpers cleanly separate owned vs. joined squads.
+
+### 🖼️ Mockups
+
+- Added `mockups/login-mockup.html` and `mockups/desktop-mockup.html` — static, server-free previews of the login page and a desktop with the Character, MS Store, Squad, and Friends windows open.
+
+### 🗒️ Docs
+
+- Added **Locations** to the future tasks (Locations/Map travel system).
+- Updated `README.md`, `todo.html`, and this changelog to reflect completed squad/friends/multiplayer work.
+
+
 ## 2026-09-11
 
 ### 🗄️ Backend — Node.js + MySQL Auth & Character System

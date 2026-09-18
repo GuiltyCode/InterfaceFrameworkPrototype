@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SteelfangsDen — Desktop (Mockup)</title>
+    <link type="text/css" rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="../css/w95.css">
+    <style>
+        html, body {
+            margin: 0; padding: 0; height: 100%;
+            background: #008081;
+            font-family: 'Windows 95', sans-serif;
+            overflow: hidden;
+        }
+        .desktop { position: relative; width: 100%; height: 100vh; }
+
+        /* ── Desktop icons ────────────────────────────────────────────────── */
+        .icon {
+            position: absolute;
+            width: 80px; text-align: center;
+            color: #fff; font-size: 0.72rem;
+            cursor: default;
+        }
+        .icon .glyph { font-size: 40px; display: block; }
+
+        /* ── Windows ──────────────────────────────────────────────────────── */
+        .win {
+            position: absolute;
+            background: #c0c0c0;
+            outline: 2px solid #08080E;
+            box-shadow:
+                -2px -2px 0 0 #FCFCFC,
+                2px  2px  0 0 #08080E,
+                -1px -1px 0 1px #c0c0c0,
+                1px  1px  0 1px #888888;
+            display: flex; flex-direction: column;
+        }
+        .win-title {
+            background: linear-gradient(90deg, #000181, #1084d0);
+            color: #fff; font-size: 0.8rem; font-weight: bold;
+            padding: 3px 6px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .win-title .ctrls { display: flex; gap: 2px; }
+        .win-title .ctrls span {
+            display: inline-block; width: 16px; height: 14px;
+            background: #c0c0c0; border: 1px outset #fff;
+            color: #000; font-size: 0.6rem; text-align: center; line-height: 12px;
+        }
+        .win-content { flex: 1; overflow-y: auto; background: #c0c0c0; }
+
+        h6 {
+            background: #000181; color: #fff;
+            padding: 2px 6px; margin: 0 0 6px;
+            font-size: 0.78rem;
+        }
+
+        /* Character sheet bits */
+        .char-table td { padding: 2px 6px; font-size: 0.78rem; }
+        .char-table td:first-child { font-weight: bold; width: 96px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
+        .stat-box { border: 2px inset #888; background: #fff; text-align: center; padding: 4px 2px; }
+        .stat-box .l { font-size: 0.6rem; color: #444; }
+        .stat-box .v { font-size: 1.05rem; font-weight: bold; }
+        .stat-box .m { font-size: 0.6rem; color: #000181; }
+
+        /* MS store / stat blocks */
+        .ms-stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; margin: 4px 0; }
+        .ms-stat { background:#fff; border:1px inset #888; text-align:center; padding:2px; }
+        .ms-stat .l { font-size:0.6rem; color:#444; }
+        .ms-stat .v { font-size:0.82rem; font-weight:bold; }
+        .ms-tag { display:inline-block; background:#000181; color:#fff; padding:1px 5px; margin:1px; font-size:0.62rem; }
+        .ms-card { border:2px solid #888; background:#c0c0c0; margin-bottom:8px; }
+        .ms-card-h { background:#000181; color:#fff; padding:3px 8px; display:flex; justify-content:space-between; font-size:0.75rem; }
+        .ms-card-b { padding:6px 8px; }
+        .era-badge { font-size:0.58rem; background:#444; color:#fff; padding:1px 4px; margin-right:3px; }
+
+        /* Squad slots */
+        .squad-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:10px; }
+        .squad-slot { border:2px inset #888; background:#e8e8e8; min-height:96px; padding:8px; position:relative; }
+        .squad-slot.empty { display:flex; align-items:center; justify-content:center; color:#888; font-style:italic; text-align:center; }
+        .squad-slot .sn { font-weight:bold; margin-bottom:3px; }
+        .squad-slot .sl { font-size:0.68rem; margin-bottom:1px; }
+        .slot-rm { position:absolute; top:4px; right:4px; width:20px; height:20px; padding:0; color:#c00; font-weight:bold; }
+
+        .tab-bar { display:flex; gap:2px; margin-bottom:8px; }
+        .tab-btn { flex:1; font-size:0.74rem; padding:5px 6px; background:#c0c0c0; border:2px outset #fff; text-align:center; }
+        .tab-btn.active { background:#fff; border:2px inset #888; font-weight:bold; }
+
+        .leader-box { border:2px inset #888; background:#fff; padding:8px; margin-bottom:10px; display:flex; gap:12px; }
+        .leader-col { flex:1; min-width:0; }
+        .leader-col.left { border-right:2px groove #ccc; padding-right:12px; }
+
+        /* Friends */
+        .fr-topbar { display:flex; align-items:center; justify-content:space-between; border:2px inset #888; background:#fff; padding:6px 8px; margin-bottom:10px; }
+        .fr-list { border:2px inset #888; background:#fff; }
+        .fr-row { display:flex; align-items:center; justify-content:space-between; padding:4px 8px; border-bottom:1px solid #ddd; }
+        .fr-row:last-child { border-bottom:none; }
+        .fr-name { display:flex; align-items:center; gap:6px; }
+        .fr-dot { width:8px; height:8px; border-radius:50%; background:#3a3; }
+        .fr-actions { display:flex; align-items:center; gap:18px; }
+        .fr-btn { font-size:0.72rem; padding:2px 8px; }
+        .fr-invite { color:#006400; white-space:nowrap; }
+        .fr-remove { color:#c00; font-weight:bold; }
+
+        .muted { color:#666; font-size:0.76rem; }
+
+        /* Taskbar */
+        .taskbar {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 40px;
+            background: #c0c0c0; border-top: 2px solid #fff;
+            display: flex; align-items: center; padding: 0 6px; gap: 6px;
+        }
+        .start-btn {
+            font-weight: bold; font-size: 0.82rem;
+            padding: 4px 12px; background: #c0c0c0; border: 2px outset #fff;
+        }
+        .clock { margin-left: auto; font-size: 0.8rem; background:#c0c0c0; border:inset 2px #888; padding:2px 10px; }
+
+        .mock-tag { position: fixed; top: 6px; left: 92px; background:#000; color:#0f0; font-family:monospace; font-size:11px; padding:3px 8px; opacity:0.55; z-index:999; }
+    </style>
+</head>
+<body>
+<div class="mock-tag">MOCKUP — desktop.html with windows open</div>
+<div class="desktop">
+
+    <!-- Desktop icons -->
+    <div class="icon" style="top:16px;left:16px;"><span class="glyph">💾</span>Character</div>
+    <div class="icon" style="top:120px;left:16px;"><span class="glyph">🗺️</span>Map</div>
+    <div class="icon" style="top:224px;left:16px;"><span class="glyph">🎒</span>Inventory</div>
+    <div class="icon" style="top:328px;left:16px;"><span class="glyph">🤖</span>MS Store</div>
+    <div class="icon" style="top:432px;left:16px;"><span class="glyph">🎖️</span>Squad</div>
+    <div class="icon" style="top:536px;left:16px;"><span class="glyph">🫂</span>Friends</div>
+
+    <!-- ── CHARACTER WINDOW ────────────────────────────────────────────── -->
+    <div class="win" style="top:30px; left:120px; width:290px; height:680px;">
+        <div class="win-title"><span>Character</span><span class="ctrls"><span>_</span><span>□</span><span>✕</span></span></div>
+        <div class="win-content" style="padding:10px;">
+            <h6>Character</h6>
+            <table class="char-table" style="width:100%;">
+                <tr><td>Name:</td><td>Amuro Ray</td></tr>
+                <tr><td>Race:</td><td>Spacenoid</td></tr>
+                <tr><td>Class:</td><td>Newtype</td></tr>
+                <tr><td>Level:</td><td>3</td></tr>
+                <tr><td>Background:</td><td>Colonist</td></tr>
+                <tr><td>HP:</td><td>24</td></tr>
+                <tr><td>Armor Points:</td><td>12</td></tr>
+                <tr><td>Prof. Bonus:</td><td>+2</td></tr>
+                <tr><td>Mobile Suit:</td><td>RX-78-2 Gundam</td></tr>
+                <tr><td>Gilla (G):</td><td>800 G</td></tr>
+            </table>
+            <h6>Ability Scores</h6>
+            <div class="stat-grid">
+                <div class="stat-box"><div class="l">STR</div><div class="v">12</div><div class="m">+1</div></div>
+                <div class="stat-box"><div class="l">DEX</div><div class="v">15</div><div class="m">+2</div></div>
+                <div class="stat-box"><div class="l">CON</div><div class="v">13</div><div class="m">+1</div></div>
+                <div class="stat-box"><div class="l">INT</div><div class="v">14</div><div class="m">+2</div></div>
+                <div class="stat-box"><div class="l">WIS</div><div class="v">17</div><div class="m">+3</div></div>
+                <div class="stat-box"><div class="l">CHA</div><div class="v">16</div><div class="m">+3</div></div>
+            </div>
+            <h6>Personality Traits</h6>
+            <p style="margin:0 0 6px;background:#fff;padding:4px;border:1px inset #888;font-size:0.76rem;">Determined, empathic, haunted by war.</p>
+            <button class="btn btn-sm btn-primary border-dark"><span class="btn-text">✏️ Edit Character</span></button>
+        </div>
+    </div>
+
+    <!-- ── MS STORE WINDOW ─────────────────────────────────────────────── -->
+    <div class="win" style="top:60px; left:430px; width:360px; height:470px;">
+        <div class="win-title"><span>Mobile Suit Requisition</span><span class="ctrls"><span>_</span><span>□</span><span>✕</span></span></div>
+        <div class="win-content" style="padding:8px;">
+            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;font-size:0.72rem;">
+                <span>Rarity:</span><select style="border:2px inset #888;font-size:0.72rem;"><option>All</option></select>
+                <span>Faction:</span><select style="border:2px inset #888;font-size:0.72rem;"><option>All</option></select>
+                <span>Era:</span><select style="border:2px inset #888;font-size:0.72rem;"><option>All</option></select>
+            </div>
+
+            <div class="ms-card">
+                <div class="ms-card-h"><strong>RX-78-2 Gundam</strong><span style="color:#e0a0ff;">Very Rare · E. Federation</span></div>
+                <div class="ms-card-b">
+                    <div style="display:flex;gap:8px;">
+                        <div style="width:70px;height:70px;background:#fff;border:2px inset #888;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">🤖</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="margin-bottom:3px;"><span class="era-badge">One Year War</span><span class="ms-tag">General MS</span><span class="ms-tag">Gundam MS</span></div>
+                            <div class="ms-stat-row">
+                                <div class="ms-stat"><div class="l">Armor</div><div class="v">90 (T15)</div></div>
+                                <div class="ms-stat"><div class="l">Evasion</div><div class="v">14</div></div>
+                                <div class="ms-stat"><div class="l">Die</div><div class="v">1d8</div></div>
+                            </div>
+                            <div class="ms-stat-row">
+                                <div class="ms-stat"><div class="l">STR</div><div class="v">16</div></div>
+                                <div class="ms-stat"><div class="l">DEX</div><div class="v">14</div></div>
+                                <div class="ms-stat"><div class="l">CON</div><div class="v">16</div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="margin:3px 0;font-size:0.7rem;"><strong>Fixed:</strong> Beam Rifle (3d8), Beam Saber (2d8), Shield</p>
+                    <button class="btn btn-sm btn-primary border-dark" style="font-size:0.7rem;"><span class="btn-text">⚙️ Set as Active Suit</span></button>
+                </div>
+            </div>
+
+            <div class="ms-card">
+                <div class="ms-card-h"><strong>MS-06S Zaku II</strong><span style="color:#4d9;">Uncommon · Zeon</span></div>
+                <div class="ms-card-b">
+                    <div style="display:flex;gap:8px;">
+                        <div style="width:70px;height:70px;background:#fff;border:2px inset #888;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">🤖</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="margin-bottom:3px;"><span class="era-badge">One Year War</span><span class="ms-tag">General MS</span></div>
+                            <div class="ms-stat-row">
+                                <div class="ms-stat"><div class="l">Armor</div><div class="v">70 (T10)</div></div>
+                                <div class="ms-stat"><div class="l">Evasion</div><div class="v">12</div></div>
+                                <div class="ms-stat"><div class="l">Die</div><div class="v">1d6</div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="margin:3px 0;font-size:0.7rem;"><strong>Fixed:</strong> 120mm Machine Gun, Heat Hawk</p>
+                    <button class="btn btn-sm btn-primary border-dark" style="font-size:0.7rem;"><span class="btn-text">⚙️ Set as Active Suit</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SQUAD WINDOW ────────────────────────────────────────────────── -->
+    <div class="win" style="top:30px; left:1140px; width:400px; height:680px;">
+        <div class="win-title"><span>Squad</span><span class="ctrls"><span>_</span><span>□</span><span>✕</span></span></div>
+        <div class="win-content" style="padding:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;border:2px inset #888;background:#fff;padding:6px 8px;margin-bottom:10px;">
+                <span style="font-weight:bold;">🎖️ White Base Team</span>
+                <button class="btn btn-sm btn-primary border-dark"><span class="btn-text">✏️ Rename</span></button>
+            </div>
+            <div class="tab-bar">
+                <div class="tab-btn active">👥 NPC Recruitment</div>
+                <div class="tab-btn">🏢 Company Recruitment</div>
+            </div>
+            <div class="leader-box">
+                <div class="leader-col left">
+                    <strong>Amuro Ray</strong>
+                    <table class="char-table" style="width:100%;margin-top:4px;">
+                        <tr><td>Class:</td><td>Newtype</td></tr>
+                        <tr><td>HP:</td><td>24</td></tr>
+                        <tr><td>Armor:</td><td>12</td></tr>
+                    </table>
+                </div>
+                <div class="leader-col">
+                    <strong>🤖 RX-78-2 Gundam</strong>
+                    <div class="ms-stat-row" style="margin-top:4px;">
+                        <div class="ms-stat"><div class="l">Armor</div><div class="v">90</div></div>
+                        <div class="ms-stat"><div class="l">Eva</div><div class="v">14</div></div>
+                        <div class="ms-stat"><div class="l">Die</div><div class="v">1d8</div></div>
+                    </div>
+                </div>
+            </div>
+            <h6>👥 Squad Members</h6>
+            <div class="squad-grid">
+                <div class="squad-slot">
+                    <button class="btn btn-sm slot-rm">−</button>
+                    <div class="sn">Sayla Mass</div>
+                    <div class="sl">Class: Executant</div>
+                    <div class="sl">Race: Spacenoid</div>
+                    <div class="sl">HP: 18 · AP: 11</div>
+                </div>
+                <div class="squad-slot">
+                    <button class="btn btn-sm slot-rm">−</button>
+                    <div class="sn">Kai Shiden</div>
+                    <div class="sl">Class: Scout</div>
+                    <div class="sl">Race: Earthnoid</div>
+                    <div class="sl">HP: 21 · AP: 10</div>
+                </div>
+                <div class="squad-slot empty"><div>Empty Slot 3</div></div>
+                <div class="squad-slot empty"><div>Empty Slot 4</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── FRIENDS WINDOW ──────────────────────────────────────────────── -->
+    <div class="win" style="top:120px; left:800px; width:320px; height:380px;">
+        <div class="win-title"><span>Friends</span><span class="ctrls"><span>_</span><span>□</span><span>✕</span></span></div>
+        <div class="win-content" style="padding:10px;">
+            <div class="fr-topbar">
+                <button class="btn btn-sm btn-primary border-dark"><span class="btn-text">➕ Add Friend</span></button>
+                <span style="font-weight:bold;">👤 Amuro</span>
+            </div>
+            <h6>📥 Friend Requests</h6>
+            <div class="fr-list" style="margin-bottom:10px;">
+                <div class="fr-row">
+                    <span class="fr-name">Char_Aznable</span>
+                    <span><button class="btn btn-sm fr-btn">✓</button><button class="btn btn-sm fr-btn fr-remove" style="margin-left:4px;">−</button></span>
+                </div>
+            </div>
+            <h6>🤝 Friends</h6>
+            <div class="fr-list">
+                <div class="fr-row">
+                    <span class="fr-name"><span class="fr-dot"></span>Bright_Noa</span>
+                    <span class="fr-actions"><button class="btn btn-sm fr-btn fr-invite">➕ Squad</button><button class="btn btn-sm fr-btn fr-remove">−</button></span>
+                </div>
+                <div class="fr-row">
+                    <span class="fr-name"><span class="fr-dot"></span>Sayla_Mass</span>
+                    <span class="fr-actions"><button class="btn btn-sm fr-btn fr-invite">➕ Squad</button><button class="btn btn-sm fr-btn fr-remove">−</button></span>
+                </div>
+                <div class="fr-row">
+                    <span class="fr-name"><span class="fr-dot"></span>Kai_Shiden</span>
+                    <span class="fr-actions"><button class="btn btn-sm fr-btn fr-invite">➕ Squad</button><button class="btn btn-sm fr-btn fr-remove">−</button></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Taskbar -->
+<div class="taskbar">
+    <div class="start-btn">System Menu ▾</div>
+    <div class="clock">1:47 PM</div>
+</div>
+</body>
+</html>
